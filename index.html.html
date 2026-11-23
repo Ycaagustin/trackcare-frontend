@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<!-- saved from url=(0036)http://localhost/trackcare/frontend/ -->
+<html lang="id"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian Menggunakan Metode Forward Chaining">
+  <title>TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian</title>
+  
+  <!-- UI Design System Stylesheet Sesuai Mokup.png -->
+  <link rel="stylesheet" href="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/style.css">
+</head>
+<body>
+
+  <!-- SOT Simulation Top Banner Notice -->
+  <aside class="sot-notice-bar" aria-label="Pemberitahuan Status Prototipe">
+    <div class="container">
+      ⚙️ <strong>Mode Prototipe Frontend PHP (SOT Sesuai Mokup.png):</strong> Seluruh hasil inferensi dan otentikasi bersifat simulasi antarmuka sebelum validasi pakar traktor keluarga.
+    </div>
+  </aside>
+
+  <!-- Top Navigation Header (Public Portal) -->
+  <header class="top-header" id="publicTopHeader" style="display: block;">
+    <div class="container top-header-inner">
+      <!-- Brand Logo -->
+      <a class="brand-logo-wrap" onclick="navigateTo('beranda')">
+        <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/logo-icon-trans.png" alt="Logo TraktorCare" class="brand-icon-img">
+        <div class="brand-text-block">
+          <div class="brand-title">Traktor<span>Care</span></div>
+          <div class="brand-subtitle">Quick Traktor G1000 Boxer</div>
+        </div>
+      </a>
+
+      <!-- Main Navigation Links -->
+      <nav class="main-nav" id="mainNavMenu" aria-label="Menu Utama">
+        <button class="nav-link active" data-target="beranda" onclick="navigateTo('beranda')">Beranda</button>
+        <button class="nav-link" data-target="about" onclick="navigateTo('about')">Tentang Kami</button>
+        <button class="nav-link" data-target="konsultasi" onclick="navigateTo('konsultasi')">Konsultasi</button>
+        <button class="nav-link" data-target="panduan" onclick="navigateTo('panduan')">Panduan</button>
+        <button class="nav-link" data-target="basis-pengetahuan" onclick="navigateTo('basis-pengetahuan')">Basis Pengetahuan</button>
+        <button class="nav-link" data-target="riwayat" onclick="navigateTo('riwayat')">Riwayat</button>
+      </nav>
+
+      <!-- Right Actions (Login & Admin Toggle) -->
+      <div class="topbar-actions">
+        <button class="btn-admin-switch" onclick="switchToAdminView()" title="Buka Panel Dashboard Admin">
+          <span>⚙️ Panel Admin</span>
+        </button>
+        <button class="btn-login-pill" id="headerLoginBtn" onclick="openAuthModal('login')"><span>👤 Administrator</span></button>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Buka Menu Mobile">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Content Container -->
+  <main id="appMainContainer">
+    
+    <!-- ====================================================================
+         VIEW 1: BERANDA (Homepage - Screen 1 di Mokup.png)
+         ==================================================================== -->
+    <section id="view-beranda" class="view-page container" style="display: block;">
+      
+      <!-- Hero Banner -->
+      <div class="hero-section">
+        <div class="hero-grid">
+          <div class="hero-content-left">
+            <div class="hero-badge-pill">Sistem Pakar</div>
+            <h1 class="hero-title">Perawatan Mesin Traktor Pertanian</h1>
+            <div class="hero-subtitle">Menggunakan Metode Forward Chaining</div>
+            <p class="hero-desc">
+              Dapatkan rekomendasi perawatan dan solusi untuk menjaga performa traktor Anda.
+            </p>
+            <button class="btn-hero-cta" onclick="navigateTo('konsultasi')">
+              <span>Mulai Konsultasi</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <div class="hero-image-wrap">
+            <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/tractor-clean.png" alt="Quick Traktor G1000 Boxer" class="hero-tractor-img">
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Quick Feature Cards -->
+      <div class="feature-cards-grid">
+        <div class="feature-card" onclick="navigateTo('konsultasi')">
+          <div class="feature-icon-circle">🩺</div>
+          <h2 class="feature-card-title">Diagnosis Masalah Mesin</h2>
+          <p class="feature-card-desc">Deteksi cepat gejala kerusakan mesin traktor berdasarkan kondisi lapangan.</p>
+        </div>
+        <div class="feature-card" onclick="navigateTo('hasil-preview')">
+          <div class="feature-icon-circle">📋</div>
+          <h2 class="feature-card-title">Rekomendasi Perawatan</h2>
+          <p class="feature-card-desc">Panduan langkah perbaikan terarah sesuai aturan inferensi Forward Chaining.</p>
+        </div>
+        <div class="feature-card" onclick="navigateTo('panduan')">
+          <div class="feature-icon-circle">📅</div>
+          <h2 class="feature-card-title">Panduan Berkala</h2>
+          <p class="feature-card-desc">Jadwal servis rutin 50 jam, 100 jam, dan 200 jam kerja traktor.</p>
+        </div>
+        <div class="feature-card" onclick="navigateTo('basis-pengetahuan')">
+          <div class="feature-icon-circle">🧠</div>
+          <h2 class="feature-card-title">Basis Pengetahuan Lengkap</h2>
+          <p class="feature-card-desc">Daftar lengkap gejala, dugaan kerusakan, dan aturan keputusan pakar.</p>
+        </div>
+      </div>
+
+      <!-- Slogan & Tech Stack Banner (Top of Mokup.png) -->
+      <div class="slogan-tech-banner">
+        <div class="slogan-block">
+          <div class="slogan-quote">"Traktor Sehat, Pertanian Meningkat"</div>
+          <p class="slogan-sub">TraktorCare membantu petani mengetahui perawatan yang tepat untuk mesin traktor Quick Traktor G1000 Boxer.</p>
+        </div>
+        <div class="slogan-tractor-center">
+          <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/tractor-clean.png" alt="TraktorCare Quick Boxer">
+        </div>
+        <div class="tech-badges-block">
+          <div class="tech-badges-title">Teknologi yang Digunakan</div>
+          <div class="tech-pills-row">
+            <span class="tech-pill">PHP Native</span>
+            <span class="tech-pill">MySQL</span>
+            <span class="tech-pill">XAMPP</span>
+            <span class="tech-pill">Forward Chaining</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 2: TENTANG KAMI (Screen 2 di Mokup.png)
+         ==================================================================== -->
+    <section id="view-about" class="view-page container" style="display: none;">
+      
+      <!-- Breadcrumbs Banner -->
+      <div class="breadcrumbs-banner">
+        <div class="breadcrumb-path">
+          Ruang Kerja / Beranda &gt; <strong>Tentang Kami</strong>
+        </div>
+      </div>
+
+      <div class="about-grid">
+        <!-- Left Content -->
+        <div class="about-card-left">
+          <h1 class="about-main-title">TraktorCare</h1>
+          <div class="about-subtitle-lead">Solusi Cerdas untuk Perawatan Traktor Anda</div>
+          
+          <p class="about-text-p">
+            <strong>TraktorCare</strong> adalah sistem pakar berbasis web yang dirancang untuk membantu petani dalam melakukan perawatan mesin traktor pertanian, khususnya <strong>Quick Traktor G1000 Boxer</strong>.
+          </p>
+          <p class="about-text-p">
+            Dengan metode <em>Forward Chaining</em>, sistem ini memberikan rekomendasi berdasarkan gejala dan kondisi mesin yang Anda alami secara cepat, terstruktur, dan mudah dipahami di lapangan.
+          </p>
+
+          <div class="about-values-row">
+            <div class="about-val-item">
+              <div class="about-val-icon">⚡</div>
+              <div class="about-val-name">Mudah Digunakan</div>
+            </div>
+            <div class="about-val-item">
+              <div class="about-val-icon">🛡️</div>
+              <div class="about-val-name">Akurat &amp; Terpercaya</div>
+            </div>
+            <div class="about-val-item">
+              <div class="about-val-icon">🎓</div>
+              <div class="about-val-name">Berbasis Ilmu Pakar</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Card: Tractor Showcase -->
+        <div class="about-tractor-card">
+          <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/tractor-about.png" alt="Quick Traktor G1000 Boxer">
+          <h3>Quick Traktor G1000 Boxer</h3>
+          <p>Traktor tangan serbaguna untuk lahan pertanian sawah dan ladang.</p>
+          
+          <div class="specs-list">
+            <div class="specs-row">
+              <span>Tipe Mesin:</span>
+              <strong>Kubota RD 85 DI-2S (8.5 HP)</strong>
+            </div>
+            <div class="specs-row">
+              <span>Jenis Bahan Bakar:</span>
+              <strong>Solar / Diesel</strong>
+            </div>
+            <div class="specs-row">
+              <span>Kapasitas Pelumas:</span>
+              <strong>2.4 Liter (SAE 40 / 15W-40)</strong>
+            </div>
+            <div class="specs-row">
+              <span>Sistem Pendingin:</span>
+              <strong>Radiator Sirkulasi Alami</strong>
+            </div>
+            <div class="specs-row">
+              <span>Transmisi:</span>
+              <strong>Kombinasi Gear &amp; Chain</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 3: KONSULTASI / PILIH GEJALA (Screen 3 di Mokup.png)
+         ==================================================================== -->
+    <section id="view-konsultasi" class="view-page container" style="display: none;">
+      
+      <div class="consultation-header">
+        <h1 class="consultation-title">Konsultasi Perawatan Mesin Traktor</h1>
+        <p class="consultation-subtitle">Pilih gejala yang Anda amati di sawah. Basis pengetahuan disarikan langsung dari <strong>Buku Panduan Quick G1000 Boxer</strong> &amp; <strong>Buku Manual Mesin Diesel</strong> milik Pakar Traktor Keluarga (Bapak).</p>
+      </div>
+
+      <!-- Stepper Indicator -->
+      <div class="stepper-wrap">
+        <div class="stepper-item active" id="step1Indicator">
+          <div class="step-num">1</div>
+          <span>Pilih Gejala</span>
+        </div>
+        <div class="stepper-line"></div>
+        <div class="stepper-item" id="step2Indicator">
+          <div class="step-num">2</div>
+          <span>Proses Diagnosis</span>
+        </div>
+        <div class="stepper-line"></div>
+        <div class="stepper-item" id="step3Indicator">
+          <div class="step-num">3</div>
+          <span>Hasil</span>
+        </div>
+      </div>
+
+      <!-- Main Selection Card -->
+      <div class="symptoms-selection-card">
+        <div class="symptoms-card-header">
+          <div class="symptoms-card-title">Gejala yang Dialami</div>
+          <div style="font-size: 13px; color: var(--text-muted);">
+            <span id="selectedCountBadge" style="font-weight: 700; color: var(--primary);">1</span> gejala dipilih
+          </div>
+        </div>
+
+        <!-- Filter Categories Pills Sesuai Dokumen Kasus -->
+        <div class="category-filter-bar" id="categoryFilterBar">
+          <button class="cat-pill-btn active" onclick="filterSymptomCategory('all', this)">Semua (22)</button>
+          <button class="cat-pill-btn" onclick="filterSymptomCategory('chassis', this)">🚜 Rangka, Roda &amp; Luku</button>
+          <button class="cat-pill-btn" onclick="filterSymptomCategory('transmission', this)">⚙️ Kopling &amp; Transmisi</button>
+          <button class="cat-pill-btn" onclick="filterSymptomCategory('starter', this)">⚡ Starter &amp; Engkol</button>
+          <button class="cat-pill-btn" onclick="filterSymptomCategory('engine', this)">⚙️ Mesin Diesel &amp; Solar</button>
+          <button class="cat-pill-btn" onclick="filterSymptomCategory('cooling', this)">🌡️ Sistem Pendingin</button>
+          <button class="cat-pill-btn" onclick="filterSymptomCategory('oil', this)">💧 Oli &amp; Pelumasan</button>
+        </div>
+
+        <!-- Live Search Input -->
+        <div class="search-symptom-box">
+          <span class="search-icon-inside">🔍</span>
+          <input type="text" id="symptomSearchInput" class="search-symptom-input" placeholder="Cari gejala mesin (contoh: luku, macet, roda slip, v-belt, asap hitam, kompresi, oli)..." oninput="handleSymptomSearch(this.value)">
+        </div>
+
+        <!-- Symptoms Checkbox List (Persis Mokup.png) -->
+        <div class="symptom-checkbox-list" id="symptomCheckboxList">
+      <label class="symptom-check-card selected" for="chk-G01">
+        <input type="checkbox" id="chk-G01" checked="" onchange="toggleSymptom('G01', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G01 — Mesin diesel berputar sangat berat saat membajak sawah</div>
+          <div class="symptom-check-desc">Putaran mesin turun drastis dan tertahan saat luku masuk lapisan tanah tebal (Quick Boxer Hal. 24 No. 1).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G02">
+        <input type="checkbox" id="chk-G02" onchange="toggleSymptom('G02', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G02 — Knalpot mengeluarkan asap hitam pekat saat diberi beban bajak</div>
+          <div class="symptom-check-desc">Gas buang solar hitam pekat pekat disertai aroma solar mentah saat membajak lumpur (Quick Boxer Hal. 24 No. 1).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G03">
+        <input type="checkbox" id="chk-G03" onchange="toggleSymptom('G03', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G03 — Traktor macet tertahan tidak kuat menarik luku di sawah</div>
+          <div class="symptom-check-desc">Mata luku menancap terlalu dalam ke tanah sehingga traktor mandek tidak melaju (Quick Boxer Hal. 24 No. 2).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G04">
+        <input type="checkbox" id="chk-G04" onchange="toggleSymptom('G04', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G04 — Traktor berjalan tidak lurus / stang mendorong keras ke samping</div>
+          <div class="symptom-check-desc">Operator harus terus menahan dorongan stang ke samping karena traktor cenderung belok liar (Quick Boxer Hal. 24 No. 3).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G05">
+        <input type="checkbox" id="chk-G05" onchange="toggleSymptom('G05', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G05 — Roda traktor berputar di tempat (slip) karena tanah blocking</div>
+          <div class="symptom-check-desc">Gumpalan tanah sawah setengah basah menempel padat menutupi sirip roda besi (Quick Boxer Hal. 24 No. 4).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G06">
+        <input type="checkbox" id="chk-G06" onchange="toggleSymptom('G06', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G06 — Traktor terasa miring ekstrem dan akan terguling / terbalik</div>
+          <div class="symptom-check-desc">Keseimbangan traktor hilang di kontur miring atau bibir pematang sawah (Quick Boxer Hal. 25 No. 5).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G07">
+        <input type="checkbox" id="chk-G07" onchange="toggleSymptom('G07', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G07 — Traktor sering belok sendiri tanpa menarik tuas kopling kemudi</div>
+          <div class="symptom-check-desc">Traktor berbelok sendiri tanpa instruksi kemudi akibat pegas atau roda gigi aus (Quick Boxer Hal. 25 No. 6).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G08">
+        <input type="checkbox" id="chk-G08" onchange="toggleSymptom('G08', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G08 — Tali sabuk V-Belt cepat rusak, berdecit keras, atau putus</div>
+          <div class="symptom-check-desc">Sabuk penghubung puli mesin dan transmisi sering kendor, selip atau cepat aus (Quick Boxer Hal. 25 No. 7).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G09">
+        <input type="checkbox" id="chk-G09" onchange="toggleSymptom('G09', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G09 — Roda traktor terperosok ke dalam lubang / sumur sawah dalam</div>
+          <div class="symptom-check-desc">Roda besi traktor ambles masuk ke lubang lumpur tanpa pijakan traksi (Quick Boxer Hal. 25 No. 8).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G10">
+        <input type="checkbox" id="chk-G10" onchange="toggleSymptom('G10', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G10 — Mesin diesel susah dihidupkan saat diengkol</div>
+          <div class="symptom-check-desc">Engkol diputar berulang-ulang tetapi mesin tidak kunjung menyala (Mesin Diesel Bab 5 Hal. 41 No. 1).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G11">
+        <input type="checkbox" id="chk-G11" onchange="toggleSymptom('G11', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G11 — Terdapat gelembung udara dalam saluran solar (masuk angin)</div>
+          <div class="symptom-check-desc">Aliran bahan bakar terputus karena ada udara palsu terjebak di selang atau filter solar (Mesin Hal. 41 No. 2).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G12">
+        <input type="checkbox" id="chk-G12" onchange="toggleSymptom('G12', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G12 — Minyak solar kotor, bercampur tetesan air, atau membeku</div>
+          <div class="symptom-check-desc">Kualitas bahan bakar solar buruk, ada endapan air atau kental akibat cuaca dingin (Mesin Hal. 41 No. 2).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G13">
+        <input type="checkbox" id="chk-G13" onchange="toggleSymptom('G13', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G13 — Engkol terasa sangat ringan tanpa tahanan kompresi (blong)</div>
+          <div class="symptom-check-desc">Tekanan kompresi silinder hilang; goyangan engkol tidak terasa tahanan ledak (Mesin Hal. 41 No. 3).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G14">
+        <input type="checkbox" id="chk-G14" onchange="toggleSymptom('G14', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G14 — Tenaga mesin diesel drop / loyo saat menarik beban bajak</div>
+          <div class="symptom-check-desc">Mesin kekurangan daya saat traktor beroperasi di lahan sawah (Mesin Diesel Hal. 43).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G15">
+        <input type="checkbox" id="chk-G15" onchange="toggleSymptom('G15', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G15 — Saringan udara (air cleaner) tersumbat debu jerami dan tanah</div>
+          <div class="symptom-check-desc">Pori-pori elemen saringan tertutup debu jerami padi dan partikel tanah sawah (Mesin Hal. 43 No. 3).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G16">
+        <input type="checkbox" id="chk-G16" onchange="toggleSymptom('G16', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G16 — Putaran mesin pincang, tersendat, dan terdengar letupan</div>
+          <div class="symptom-check-desc">Mesin beroperasi tidak stabil / mbrebet disertai suara letupan sporadis (Mesin Hal. 44).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G17">
+        <input type="checkbox" id="chk-G17" onchange="toggleSymptom('G17', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G17 — Lubang knalpot basah berleleran oli mesin</div>
+          <div class="symptom-check-desc">Cairan oli mesin rembes keluar melalui pipa manifold knalpot pembuangan (Mesin Hal. 45 No. 2).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G18">
+        <input type="checkbox" id="chk-G18" onchange="toggleSymptom('G18', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G18 — Pelampung indikator oli drop / oli di bawah batas minimum</div>
+          <div class="symptom-check-desc">Tekanan oli rendah atau volume oli di dalam karter kurang dari takaran normal (Mesin Hal. 46 No. 3).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G19">
+        <input type="checkbox" id="chk-G19" onchange="toggleSymptom('G19', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G19 — RPM mesin berayun-ayun naik-turun sendiri (hunting)</div>
+          <div class="symptom-check-desc">Laju putaran mesin berfluktuasi tanpa tuas gas digerakkan oleh operator (Mesin Hal. 46 No. 5).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G20">
+        <input type="checkbox" id="chk-G20" onchange="toggleSymptom('G20', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G20 — Air pendingin radiator mendidih menyembur atau cepat habis</div>
+          <div class="symptom-check-desc">Suhu mesin meningkat drastis akibat gangguan sirkulasi atau air pendingin tekor (Mesin Hal. 29–34).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G21">
+        <input type="checkbox" id="chk-G21" onchange="toggleSymptom('G21', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G21 — Suhu udara lingkungan sekitar sangat dingin di pagi hari</div>
+          <div class="symptom-check-desc">Suhu udara dingin membekukan minyak solar dan menyulitkan titik bakar awal (Mesin Hal. 41 No. 1).</div>
+        </div>
+      </label>
+    
+      <label class="symptom-check-card " for="chk-G22">
+        <input type="checkbox" id="chk-G22" onchange="toggleSymptom('G22', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">G22 — Pipa pernapasan mesin menyemburkan asap putih tebal dan panas</div>
+          <div class="symptom-check-desc">Tanda bahaya bahwa bantalan poros (metal jalan) panas terbakar akibat pelumasan gagal (Mesin Hal. 34 No. 2).</div>
+        </div>
+      </label>
+    </div>
+
+        <!-- Stepper Bottom Navigation -->
+        <div class="stepper-actions">
+          <button class="btn-stepper-back" onclick="navigateTo('beranda')">
+            ← Kembali
+          </button>
+          <button class="btn-stepper-next" onclick="runDiagnosisInference()">
+            <span>Lanjut Diagnosis</span>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 4: HASIL DIAGNOSIS (Screen 4 di Mokup.png)
+         ==================================================================== -->
+    <section id="view-hasil" class="view-page container" style="display: none;">
+      
+      <div class="consultation-header">
+        <h1 class="consultation-title">Hasil Diagnosis &amp; Rekomendasi Solusi</h1>
+        <p class="consultation-subtitle">Rekomendasi inferensi perawatan Forward Chaining berdasarkan fakta manual buku panduan Bapak.</p>
+      </div>
+
+      <!-- Stepper Result Indicator -->
+      <div class="stepper-wrap">
+        <div class="stepper-item done">
+          <div class="step-num">✔</div>
+          <span>Pilih Gejala</span>
+        </div>
+        <div class="stepper-line" style="background: var(--green);"></div>
+        <div class="stepper-item done">
+          <div class="step-num">✔</div>
+          <span>Proses Diagnosis</span>
+        </div>
+        <div class="stepper-line" style="background: var(--primary);"></div>
+        <div class="stepper-item active">
+          <div class="step-num">3</div>
+          <span>Hasil</span>
+        </div>
+      </div>
+
+      <!-- Main Result Card -->
+      <div class="diagnosis-result-card">
+        
+        <!-- Header Alert Box -->
+        <div class="result-header-alert">
+          <div class="alert-left-group">
+            <div class="alert-icon-badge" aria-hidden="true">!</div>
+            <div>
+              <div class="alert-title-sub">Kemungkinan Gangguan / Kasus:</div>
+              <h2 class="alert-title-main" id="resultProblemTitle">Mesin sulit dihidupkan</h2>
+              <div id="resultSourceBadge" style="font-size: 12px; color: var(--navy); font-weight: 600; margin-top: 4px;">
+                📖 Rujukan: Buku Panduan Quick G1000 Boxer (Hal. 24)
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+            <div class="confidence-pill-badge" id="resultConfidenceBadge">
+              Tingkat Keyakinan: 85%
+            </div>
+            <div class="confidence-pill-badge" id="resultRiskBadge" style="background: var(--pale-blue); color: var(--navy); border: 1px solid var(--secondary); font-size: 11px;">
+              Tingkat Risiko: Perlu Penyetelan
+            </div>
+          </div>
+        </div>
+
+        <!-- Jejak Forward Chaining Box -->
+        <div id="resultRuleTraceBox" style="background: #f0f7ff; border: 1px solid #bfdbfe; padding: 12px 16px; border-radius: 8px; font-size: 12px; margin-bottom: 20px; color: var(--navy); line-height: 1.6;">
+          <strong>Jejak Inferensi Forward Chaining:</strong> Aturan <code>R-001</code> diaktifkan berdasarkan kecocokan gejala.
+        </div>
+
+        <!-- Result Details Grid -->
+        <div class="result-detail-grid">
+          <!-- Left: Likely Causes & Engine Photo -->
+          <div>
+            <div class="result-section-title">Penyebab yang Teridentifikasi pada Manual</div>
+            <ol class="causes-numbered-list" id="resultCausesList">
+              <li>Mata luku menancap terlalu dalam pada lapisan lumpur</li>
+              <li>Variasi kedalaman tanah sawah terlalu besar</li>
+              <li>Setelan tuas gas belum disesuaikan</li>
+            </ol>
+            <div class="engine-thumbnail-box">
+              <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/hero-banner-card.png" alt="Mesin Traktor Quick Boxer" id="resultEngineImg">
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+                Komponen: Traktor Quick G1000 Boxer &amp; Mesin Diesel Horisontal
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Maintenance Recommendations -->
+          <div>
+            <div class="result-section-title">Rekomendasi Pemecahan Masalah (Buku Panduan)</div>
+            <ul class="recommendations-check-list" id="resultRecommendationsList">
+              <li>Angkat stang untuk mengurangi kedalaman luku sampai diesel bekerja normal kembali</li>
+              <li>Sesuaikan putaran diesel dengan mengatur besarnya gas</li>
+            </ul>
+
+            <div style="background: var(--bg-page); border-left: 3px solid var(--primary); padding: 12px 14px; border-radius: 4px; font-size: 12px; color: var(--text-muted); margin-top: 20px;">
+              <strong>Peringatan Keselamatan:</strong> Rekomendasi di atas disarikan langsung dari panduan resmi dan kasus lapangan Bapak. Pastikan selalu mematikan mesin atau melepas beban sebelum melakukan pemeriksaan mekanis yang berisiko.
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="result-actions-row">
+          <button class="btn-save-history" onclick="saveCurrentDiagnosisHistory()">
+            Simpan Riwayat
+          </button>
+          <button class="btn-consult-again" onclick="navigateTo('konsultasi')">
+            Konsultasi Lagi
+          </button>
+          <button class="btn-consult-again" onclick="window.print()">
+            🖨️ Cetak Hasil
+          </button>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 5: PANDUAN PERAWATAN BERKALA (Screen 5 di Mokup.png)
+         ==================================================================== -->
+    <section id="view-panduan" class="view-page container" style="display: none;">
+      
+      <div class="consultation-header" style="text-align: left; margin: 24px 0 16px 0;">
+        <h1 class="consultation-title">Panduan Perawatan Berkala Otentik</h1>
+        <p class="consultation-subtitle">Disarikan dari Buku Petunjuk Operasional &amp; Pemeliharaan Mesin Diesel Bab 4 (Hal. 36–40) &amp; Quick G1000 Boxer.</p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="guide-tabs-bar" id="guideTabsBar">
+        <button class="guide-pill-btn active" onclick="filterGuides('all', this)">Semua Jadwal</button>
+        <button class="guide-pill-btn" onclick="filterGuides('oil', this)">Oli &amp; Karter (Harian &amp; 100 Jam)</button>
+        <button class="guide-pill-btn" onclick="filterGuides('chassis', this)">Saringan Udara &amp; Filter Solar</button>
+        <button class="guide-pill-btn" onclick="filterGuides('cooling', this)">Servis Menyeluruh (500 Jam)</button>
+      </div>
+
+      <!-- Guide Cards List -->
+      <div class="guide-cards-list" id="guideCardsContainer">
+      <div class="guide-card-item">
+        <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/guide-oil.png" alt="1. Pemeliharaan Harian (Sebelum &amp; Sesudah Bekerja)" class="guide-card-thumb">
+        <div class="guide-card-content">
+          <h3 class="guide-card-title">1. Pemeliharaan Harian (Sebelum &amp; Sesudah Bekerja)</h3>
+          <div class="guide-card-interval">Interval: Setiap Hari Sebelum Masuk Sawah</div>
+          <p class="guide-card-desc">Periksa level oli mesin via dipstick di antara 2 garis batas. Cek air pendingin radiator dan pastikan tidak ada kebocoran solar, oli, atau air. Bersihkan lumpur tanah yang menempel pada roda besi dan rangka.</p>
+          <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 6px;">
+            💡 Tips Praktis: Gunakan air hujan atau air kali jernih bebas kapur; dilarang menggunakan air asin atau keruh berlumpur.
+          </div>
+        </div>
+      </div>
+    
+      <div class="guide-card-item">
+        <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/guide-oil.png" alt="2. Pemeliharaan Tingkat Satu (100 Jam Kerja)" class="guide-card-thumb">
+        <div class="guide-card-content">
+          <h3 class="guide-card-title">2. Pemeliharaan Tingkat Satu (100 Jam Kerja)</h3>
+          <div class="guide-card-interval">Interval: Setiap 100 Jam Pemakaian</div>
+          <p class="guide-card-desc">Ganti oli mesin diesel (kapasitas 2.4 Liter SAE 40 / 15W-40). Kuras oli saat mesin masih hangat agar endapan kotoran keluar sempurna. Cuci saringan kasa oli di dasar karter dalam solar bersih.</p>
+          <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 6px;">
+            💡 Tips Praktis: Jangan mencampurkan sisa oli bekas dengan oli baru untuk menjaga usia metal jalan kruk as.
+          </div>
+        </div>
+      </div>
+    
+      <div class="guide-card-item">
+        <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/guide-filter.png" alt="3. Pembersihan Saringan Udara &amp; Filter Solar" class="guide-card-thumb">
+        <div class="guide-card-content">
+          <h3 class="guide-card-title">3. Pembersihan Saringan Udara &amp; Filter Solar</h3>
+          <div class="guide-card-interval">Interval: Setiap 50 - 100 Jam Kerja</div>
+          <p class="guide-card-desc">Bongkar sumbu saringan udara, bersihkan dari endapan debu jerami kering. Cuci elemen filter bahan bakar solar dan bersihkan kran pengendap air dari kotoran lumpur solar.</p>
+          <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 6px;">
+            💡 Tips Praktis: Semprot elemen saringan udara dari arah dalam keluar menggunakan kompresor bertekanan sedang.
+          </div>
+        </div>
+      </div>
+    
+      <div class="guide-card-item">
+        <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/engine-sample.png" alt="4. Pemeliharaan Tingkat Dua (500 Jam Kerja)" class="guide-card-thumb">
+        <div class="guide-card-content">
+          <h3 class="guide-card-title">4. Pemeliharaan Tingkat Dua (500 Jam Kerja)</h3>
+          <div class="guide-card-interval">Interval: Setiap 500 Jam Pemakaian</div>
+          <p class="guide-card-desc">Periksa dan setel celah katup klep masuk dan buang. Uji semprot dan tekanan nosel injektor ke standar 14.2 ± 0.5 MPa. Periksa kekencangan baut silinder head (120–150 N.m), baut stang piston, dan roda gila.</p>
+          <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 6px;">
+            💡 Tips Praktis: Setel defleksi sabuk V-Belt sebesar ± 1.5 cm di bawah beban 2 kg pada baut Tension Rod Adjustment.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 6: BASIS PENGETAHUAN (Screen 6 di Mokup.png)
+         ==================================================================== -->
+    <section id="view-basis-pengetahuan" class="view-page container" style="display: none;">
+      
+      <div class="consultation-header" style="text-align: left; margin: 24px 0 12px 0;">
+        <h1 class="consultation-title">Basis Pengetahuan</h1>
+        <p class="consultation-subtitle">Data gejala, penyebab, dan tindakan perawatan yang digunakan dalam sistem.</p>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="kb-search-row">
+        <input type="text" id="kbSearchInput" class="kb-search-input" placeholder="Cari gejala, masalah, atau tindakan..." oninput="handleKbSearch(this.value)">
+        <button class="btn-kb-search" onclick="executeKbSearch()">Cari</button>
+      </div>
+
+      <!-- Category Tabs (Gejala, Penyebab, Tindakan, Aturan) -->
+      <div class="kb-tabs-bar">
+        <button class="kb-tab-btn active" onclick="switchKbTab('symptoms', this)">Gejala</button>
+        <button class="kb-tab-btn" onclick="switchKbTab('causes', this)">Penyebab</button>
+        <button class="kb-tab-btn" onclick="switchKbTab('actions', this)">Tindakan Perawatan</button>
+        <button class="kb-tab-btn" onclick="switchKbTab('rules', this)">Aturan IF-THEN</button>
+      </div>
+
+      <!-- Data Table Card -->
+      <div class="data-table-card">
+        <table class="clean-table" id="kbDataTable">
+          <thead>
+            <tr>
+              <th style="width: 80px;">No</th>
+              <th id="kbColTitle">Gejala</th>
+              <th>Keterangan</th>
+              <th style="width: 140px;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="kbTableBody">
+    <tr>
+      <td>1</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G01 — Mesin diesel berputar sangat berat saat membajak sawah</td>
+      <td>Putaran mesin turun drastis dan tertahan saat luku masuk lapisan tanah tebal (Quick Boxer Hal. 24 No. 1).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>2</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G02 — Knalpot mengeluarkan asap hitam pekat saat diberi beban bajak</td>
+      <td>Gas buang solar hitam pekat pekat disertai aroma solar mentah saat membajak lumpur (Quick Boxer Hal. 24 No. 1).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>3</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G03 — Traktor macet tertahan tidak kuat menarik luku di sawah</td>
+      <td>Mata luku menancap terlalu dalam ke tanah sehingga traktor mandek tidak melaju (Quick Boxer Hal. 24 No. 2).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>4</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G04 — Traktor berjalan tidak lurus / stang mendorong keras ke samping</td>
+      <td>Operator harus terus menahan dorongan stang ke samping karena traktor cenderung belok liar (Quick Boxer Hal. 24 No. 3).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>5</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G05 — Roda traktor berputar di tempat (slip) karena tanah blocking</td>
+      <td>Gumpalan tanah sawah setengah basah menempel padat menutupi sirip roda besi (Quick Boxer Hal. 24 No. 4).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>6</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G06 — Traktor terasa miring ekstrem dan akan terguling / terbalik</td>
+      <td>Keseimbangan traktor hilang di kontur miring atau bibir pematang sawah (Quick Boxer Hal. 25 No. 5).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>7</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G07 — Traktor sering belok sendiri tanpa menarik tuas kopling kemudi</td>
+      <td>Traktor berbelok sendiri tanpa instruksi kemudi akibat pegas atau roda gigi aus (Quick Boxer Hal. 25 No. 6).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>8</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G08 — Tali sabuk V-Belt cepat rusak, berdecit keras, atau putus</td>
+      <td>Sabuk penghubung puli mesin dan transmisi sering kendor, selip atau cepat aus (Quick Boxer Hal. 25 No. 7).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>9</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G09 — Roda traktor terperosok ke dalam lubang / sumur sawah dalam</td>
+      <td>Roda besi traktor ambles masuk ke lubang lumpur tanpa pijakan traksi (Quick Boxer Hal. 25 No. 8).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>10</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G10 — Mesin diesel susah dihidupkan saat diengkol</td>
+      <td>Engkol diputar berulang-ulang tetapi mesin tidak kunjung menyala (Mesin Diesel Bab 5 Hal. 41 No. 1).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>11</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G11 — Terdapat gelembung udara dalam saluran solar (masuk angin)</td>
+      <td>Aliran bahan bakar terputus karena ada udara palsu terjebak di selang atau filter solar (Mesin Hal. 41 No. 2).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>12</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G12 — Minyak solar kotor, bercampur tetesan air, atau membeku</td>
+      <td>Kualitas bahan bakar solar buruk, ada endapan air atau kental akibat cuaca dingin (Mesin Hal. 41 No. 2).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>13</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G13 — Engkol terasa sangat ringan tanpa tahanan kompresi (blong)</td>
+      <td>Tekanan kompresi silinder hilang; goyangan engkol tidak terasa tahanan ledak (Mesin Hal. 41 No. 3).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>14</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G14 — Tenaga mesin diesel drop / loyo saat menarik beban bajak</td>
+      <td>Mesin kekurangan daya saat traktor beroperasi di lahan sawah (Mesin Diesel Hal. 43).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>15</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G15 — Saringan udara (air cleaner) tersumbat debu jerami dan tanah</td>
+      <td>Pori-pori elemen saringan tertutup debu jerami padi dan partikel tanah sawah (Mesin Hal. 43 No. 3).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>16</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G16 — Putaran mesin pincang, tersendat, dan terdengar letupan</td>
+      <td>Mesin beroperasi tidak stabil / mbrebet disertai suara letupan sporadis (Mesin Hal. 44).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>17</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G17 — Lubang knalpot basah berleleran oli mesin</td>
+      <td>Cairan oli mesin rembes keluar melalui pipa manifold knalpot pembuangan (Mesin Hal. 45 No. 2).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>18</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G18 — Pelampung indikator oli drop / oli di bawah batas minimum</td>
+      <td>Tekanan oli rendah atau volume oli di dalam karter kurang dari takaran normal (Mesin Hal. 46 No. 3).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>19</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G19 — RPM mesin berayun-ayun naik-turun sendiri (hunting)</td>
+      <td>Laju putaran mesin berfluktuasi tanpa tuas gas digerakkan oleh operator (Mesin Hal. 46 No. 5).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>20</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G20 — Air pendingin radiator mendidih menyembur atau cepat habis</td>
+      <td>Suhu mesin meningkat drastis akibat gangguan sirkulasi atau air pendingin tekor (Mesin Hal. 29–34).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>21</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G21 — Suhu udara lingkungan sekitar sangat dingin di pagi hari</td>
+      <td>Suhu udara dingin membekukan minyak solar dan menyulitkan titik bakar awal (Mesin Hal. 41 No. 1).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  
+    <tr>
+      <td>22</td>
+      <td style="font-weight: 700; color: var(--charcoal);">G22 — Pipa pernapasan mesin menyemburkan asap putih tebal dan panas</td>
+      <td>Tanda bahaya bahwa bantalan poros (metal jalan) panas terbakar akibat pelumasan gagal (Mesin Hal. 34 No. 2).</td>
+      <td><span class="badge-status badge-success">DISETUJUI</span></td>
+    </tr>
+  </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-wrap">
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">&gt;</button>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 7: RIWAYAT KONSULTASI (Screen 9 di Mokup.png)
+         ==================================================================== -->
+    <section id="view-riwayat" class="view-page container" style="display: none;">
+      
+      <div class="consultation-header" style="text-align: left; margin: 24px 0 12px 0;">
+        <h1 class="consultation-title">Riwayat Konsultasi</h1>
+        <p class="consultation-subtitle">Data konsultasi yang pernah Anda lakukan.</p>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="kb-search-row">
+        <input type="text" id="historySearchInput" class="kb-search-input" placeholder="Cari nama, masalah, atau tanggal..." oninput="handleHistorySearch(this.value)">
+        <button class="btn-kb-search" onclick="executeHistorySearch()">Cari</button>
+      </div>
+
+      <!-- Consultation History Table -->
+      <div class="data-table-card">
+        <table class="clean-table">
+          <thead>
+            <tr>
+              <th style="width: 60px;">No</th>
+              <th>Tanggal</th>
+              <th>Nama Pengguna</th>
+              <th>Masalah</th>
+              <th style="width: 120px;">Status</th>
+              <th style="width: 100px;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+      <tr>
+        <td>1</td>
+        <td>23-11-2026</td>
+        <td style="font-weight: 600;">Tamu Lapangan</td>
+        <td style="color: var(--charcoal); font-weight: 700;">Beban Bajak / Luku Terlalu Dalam di Sawah</td>
+        <td><span class="badge-status badge-success">Selesai</span></td>
+        <td>
+          <button onclick="openHistoryDetail('6', 'KONS-20261123-1BC8')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+            Rincian
+          </button>
+        </td>
+      </tr>
+    
+      <tr>
+        <td>2</td>
+        <td>18-10-2026</td>
+        <td style="font-weight: 600;">Bpk. H. Sutrisno (Petani Pemilik)</td>
+        <td style="color: var(--charcoal); font-weight: 700;">Beban Bajak / Luku Terlalu Dalam di Sawah</td>
+        <td><span class="badge-status badge-success">Selesai</span></td>
+        <td>
+          <button onclick="openHistoryDetail('1', 'KONS-20261018-001')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+            Rincian
+          </button>
+        </td>
+      </tr>
+    
+      <tr>
+        <td>3</td>
+        <td>17-10-2026</td>
+        <td style="font-weight: 600;">Ahmad Fauzi</td>
+        <td style="color: var(--charcoal); font-weight: 700;">Roda Besi Slip Akibat Blocking Gumpalan Tanah Sawah</td>
+        <td><span class="badge-status badge-success">Selesai</span></td>
+        <td>
+          <button onclick="openHistoryDetail('3', 'KONS-20261017-003')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+            Rincian
+          </button>
+        </td>
+      </tr>
+    
+      <tr>
+        <td>4</td>
+        <td>17-10-2026</td>
+        <td style="font-weight: 600;">Budi Santoso</td>
+        <td style="color: var(--charcoal); font-weight: 700;">Masalah Pasokan Bahan Bakar Solar &amp; Injektor (Mesin Susah Hidup)</td>
+        <td><span class="badge-status badge-success">Selesai</span></td>
+        <td>
+          <button onclick="openHistoryDetail('2', 'KONS-20261017-002')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+            Rincian
+          </button>
+        </td>
+      </tr>
+    
+      <tr>
+        <td>5</td>
+        <td>16-10-2026</td>
+        <td style="font-weight: 600;">Siti Aminah</td>
+        <td style="color: var(--charcoal); font-weight: 700;">Puli Tidak Sejajar &amp; Ketegangan V-Belt Tidak Sesuai</td>
+        <td><span class="badge-status badge-success">Selesai</span></td>
+        <td>
+          <button onclick="openHistoryDetail('4', 'KONS-20261016-004')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+            Rincian
+          </button>
+        </td>
+      </tr>
+    
+      <tr>
+        <td>6</td>
+        <td>15-10-2026</td>
+        <td style="font-weight: 600;">Rudi Hartono</td>
+        <td style="color: var(--charcoal); font-weight: 700;">Gangguan Transmisi Kemudi &amp; Pegas Kopling (Clutch Spring)</td>
+        <td><span class="badge-status badge-success">Selesai</span></td>
+        <td>
+          <button onclick="openHistoryDetail('5', 'KONS-20261015-005')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+            Rincian
+          </button>
+        </td>
+      </tr>
+    </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-wrap">
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">&gt;</button>
+      </div>
+
+    </section>
+
+    <!-- ====================================================================
+         VIEW 8: DASHBOARD ADMIN & LAPORAN (Screen 8 & 10 di Mokup.png)
+         ==================================================================== -->
+    <div id="view-admin" style="display: none;">
+      <div class="admin-workspace">
+        
+        <!-- Charcoal Sidebar (Screen 8) -->
+        <aside class="admin-sidebar">
+          <div class="admin-sidebar-header">
+            <div class="brand-title" style="color: #FFFFFF; font-size: 20px;">
+              Traktor<span style="color: var(--primary-accent);">Care</span>
+            </div>
+            
+            <div class="admin-profile-box">
+              <div class="admin-avatar">AD</div>
+              <div class="admin-profile-info">
+                <span class="admin-name">admin</span>
+                <span class="admin-role">Administrator</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin Nav Menu -->
+          <nav class="admin-nav-menu">
+            <button class="admin-nav-item active" data-admin-view="dashboard" onclick="switchAdminTab('dashboard', this)">
+              <span class="admin-nav-icon">📊</span>
+              <span>Dashboard</span>
+            </button>
+            <button class="admin-nav-item" data-admin-view="gejala" onclick="switchAdminTab('gejala', this)">
+              <span class="admin-nav-icon">📋</span>
+              <span>Data Gejala</span>
+            </button>
+            <button class="admin-nav-item" data-admin-view="penyebab" onclick="switchAdminTab('penyebab', this)">
+              <span class="admin-nav-icon">⚠️</span>
+              <span>Data Penyebab</span>
+            </button>
+            <button class="admin-nav-item" data-admin-view="perawatan" onclick="switchAdminTab('perawatan', this)">
+              <span class="admin-nav-icon">🔧</span>
+              <span>Data Perawatan</span>
+            </button>
+            <button class="admin-nav-item" data-admin-view="aturan" onclick="switchAdminTab('aturan', this)">
+              <span class="admin-nav-icon">📜</span>
+              <span>Aturan Pakar</span>
+            </button>
+            <button class="admin-nav-item" data-admin-view="riwayat" onclick="switchAdminTab('riwayat', this)">
+              <span class="admin-nav-icon">🕒</span>
+              <span>Riwayat Konsultasi</span>
+            </button>
+            <button class="admin-nav-item" data-admin-view="laporan" onclick="switchAdminTab('laporan', this)">
+              <span class="admin-nav-icon">📈</span>
+              <span>Laporan</span>
+            </button>
+            <button class="admin-nav-item" data-admin-view="pengaturan" onclick="switchAdminTab('pengaturan', this)">
+              <span class="admin-nav-icon">⚙️</span>
+              <span>Pengaturan</span>
+            </button>
+            
+            <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--charcoal-border);">
+              <button class="admin-nav-item" onclick="switchToPublicView()" style="color: #93C5FD;">
+                <span class="admin-nav-icon">←</span>
+                <span>Portal Petani</span>
+              </button>
+            </div>
+          </nav>
+        </aside>
+
+        <!-- Admin Content Area -->
+        <div class="admin-content-area">
+          
+          <!-- SUB-VIEW: ADMIN DASHBOARD (Screen 8 di Mokup.png) -->
+          <div id="admin-subview-dashboard" style="display: block;">
+            <div class="admin-top-greeting">
+              <h2>Dashboard Administrator</h2>
+              <div style="font-size: 13px; color: var(--text-muted);">
+                Aktif sebagai: <strong style="color: var(--charcoal);">admin ▾</strong>
+              </div>
+            </div>
+
+            <!-- 3 Stat Metrics Cards (Mokup Screen 8) -->
+            <div class="admin-metrics-grid">
+              <div class="metric-stat-card">
+                <div class="metric-stat-title">Total Konsultasi</div>
+                <div class="metric-stat-num">48</div>
+              </div>
+              <div class="metric-stat-card">
+                <div class="metric-stat-title">Gejala Terdaftar</div>
+                <div class="metric-stat-num">25</div>
+              </div>
+              <div class="metric-stat-card">
+                <div class="metric-stat-title">Aturan Pakar</div>
+                <div class="metric-stat-num">32</div>
+              </div>
+            </div>
+
+            <!-- Konsultasi Terbaru Table (Mokup Screen 8) -->
+            <div class="table-section-title">Konsultasi Terbaru</div>
+            <div class="data-table-card">
+              <table class="clean-table">
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Nama Pengguna</th>
+                    <th>Masalah</th>
+                    <th style="width: 100px;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="adminRecentTableBody">
+    <tr>
+      <td>23-11-2026</td>
+      <td style="font-weight: 600;">Tamu Lapangan</td>
+      <td style="color: var(--charcoal); font-weight: 700;">Beban Bajak / Luku Terlalu Dalam di Sawah</td>
+      <td>
+        <button onclick="openHistoryDetail('6', 'KONS-20261123-1BC8')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+          Lihat
+        </button>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>18-10-2026</td>
+      <td style="font-weight: 600;">Bpk. H. Sutrisno (Petani Pemilik)</td>
+      <td style="color: var(--charcoal); font-weight: 700;">Beban Bajak / Luku Terlalu Dalam di Sawah</td>
+      <td>
+        <button onclick="openHistoryDetail('1', 'KONS-20261018-001')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+          Lihat
+        </button>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>17-10-2026</td>
+      <td style="font-weight: 600;">Ahmad Fauzi</td>
+      <td style="color: var(--charcoal); font-weight: 700;">Roda Besi Slip Akibat Blocking Gumpalan Tanah Sawah</td>
+      <td>
+        <button onclick="openHistoryDetail('3', 'KONS-20261017-003')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+          Lihat
+        </button>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>17-10-2026</td>
+      <td style="font-weight: 600;">Budi Santoso</td>
+      <td style="color: var(--charcoal); font-weight: 700;">Masalah Pasokan Bahan Bakar Solar &amp; Injektor (Mesin Susah Hidup)</td>
+      <td>
+        <button onclick="openHistoryDetail('2', 'KONS-20261017-002')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+          Lihat
+        </button>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>16-10-2026</td>
+      <td style="font-weight: 600;">Siti Aminah</td>
+      <td style="color: var(--charcoal); font-weight: 700;">Puli Tidak Sejajar &amp; Ketegangan V-Belt Tidak Sesuai</td>
+      <td>
+        <button onclick="openHistoryDetail('4', 'KONS-20261016-004')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+          Lihat
+        </button>
+      </td>
+    </tr>
+  </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SUB-VIEW: LAPORAN ADMIN (Screen 10 di Mokup.png) -->
+          <div id="admin-subview-laporan" style="display: none;">
+            <div class="admin-top-greeting">
+              <h2>Laporan &amp; Analisis Konsultasi</h2>
+            </div>
+
+            <!-- Filter Bar (Screen 10) -->
+            <div class="report-filter-bar">
+              <span style="font-size: 13px; font-weight: 600;">Periode:</span>
+              <input type="text" class="report-date-input" value="01/04/2025 - 30/04/2025" readonly="">
+              <button class="btn-filter-blue">Filter</button>
+            </div>
+
+            <!-- Analytics Grid: 2 Cards -->
+            <div class="report-analytics-grid">
+              
+              <!-- Card 1: Jumlah Konsultasi Bar Chart -->
+              <div class="analytics-card">
+                <div class="analytics-card-title">Jumlah Konsultasi</div>
+                <div class="chart-bars-wrap">
+                  <div class="chart-bar-col">
+                    <div class="bar-rect" style="height: 45%;"></div>
+                    <span class="bar-month-label">Jan</span>
+                  </div>
+                  <div class="chart-bar-col">
+                    <div class="bar-rect" style="height: 60%;"></div>
+                    <span class="bar-month-label">Feb</span>
+                  </div>
+                  <div class="chart-bar-col">
+                    <div class="bar-rect" style="height: 75%;"></div>
+                    <span class="bar-month-label">Mar</span>
+                  </div>
+                  <div class="chart-bar-col">
+                    <div class="bar-rect" style="height: 90%;"></div>
+                    <span class="bar-month-label">Apr</span>
+                  </div>
+                  <div class="chart-bar-col">
+                    <div class="bar-rect" style="height: 100%; background: var(--primary);"></div>
+                    <span class="bar-month-label" style="font-weight: 700; color: var(--primary);">Mei</span>
+                  </div>
+                  <div class="chart-bar-col">
+                    <div class="bar-rect" style="height: 80%;"></div>
+                    <span class="bar-month-label">Jun</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: Masalah yang Paling Sering -->
+              <div class="analytics-card">
+                <div class="analytics-card-title">Masalah yang Paling Sering</div>
+                
+                <div class="frequency-item">
+                  <div class="frequency-info-row">
+                    <span>Mesin sulit dihidupkan</span>
+                    <span>28%</span>
+                  </div>
+                  <div class="progress-bar-track">
+                    <div class="progress-bar-fill" style="width: 28%; background: var(--primary);"></div>
+                  </div>
+                </div>
+
+                <div class="frequency-item">
+                  <div class="frequency-info-row">
+                    <span>Mesin cepat panas</span>
+                    <span>20%</span>
+                  </div>
+                  <div class="progress-bar-track">
+                    <div class="progress-bar-fill" style="width: 20%; background: #3B82F6;"></div>
+                  </div>
+                </div>
+
+                <div class="frequency-item">
+                  <div class="frequency-info-row">
+                    <span>Kebocoran oli</span>
+                    <span>15%</span>
+                  </div>
+                  <div class="progress-bar-track">
+                    <div class="progress-bar-fill" style="width: 15%; background: #0EA5E9;"></div>
+                  </div>
+                </div>
+
+                <div class="frequency-item">
+                  <div class="frequency-info-row">
+                    <span>Filter udara kotor</span>
+                    <span>15%</span>
+                  </div>
+                  <div class="progress-bar-track">
+                    <div class="progress-bar-fill" style="width: 15%; background: #64748B;"></div>
+                  </div>
+                </div>
+
+                <div class="frequency-item">
+                  <div class="frequency-info-row">
+                    <span>Aki lemah</span>
+                    <span>12%</span>
+                  </div>
+                  <div class="progress-bar-track">
+                    <div class="progress-bar-fill" style="width: 12%; background: #F59E0B;"></div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- SUB-VIEW: MASTER DATA TABLES -->
+          <div id="admin-subview-generic" style="display: none;">
+            <div class="admin-top-greeting">
+              <h2 id="adminGenericTitle">Manajemen Data Master</h2>
+            </div>
+            <div class="data-table-card">
+              <table class="clean-table" id="adminGenericTable">
+                <!-- Dynamically populated -->
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ======================================================================
+       SCREEN 7: LOGIN / REGISTER MODAL (Persis Mokup.png Screen 7)
+       ====================================================================== -->
+  <div class="modal-overlay" id="authModalOverlay" onclick="handleModalBackdropClick(event)">
+    <div class="auth-split-card" onclick="event.stopPropagation()">
+      <button class="auth-modal-close-btn" onclick="closeAuthModal()" aria-label="Tutup Form">✕</button>
+      
+      <!-- Left Banner (Navy with Tractor) -->
+      <div class="auth-banner-left">
+        <div>
+          <div class="auth-banner-logo">
+            <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/logo-icon-trans.png" alt="Logo TraktorCare">
+            <span>Traktor<strong>Care</strong></span>
+          </div>
+          <h2 class="auth-banner-title">Mulai Perawatan Traktor Bersama Kami</h2>
+          <p class="auth-banner-desc">
+            Dapatkan rekomendasi perawatan yang tepat untuk menjaga performa mesin Anda.
+          </p>
+        </div>
+        <div class="auth-banner-tractor">
+          <img src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/login-tractor.png" alt="Traktor Quick G1000 Boxer">
+        </div>
+      </div>
+
+      <!-- Right Form Panel -->
+      <div class="auth-form-right">
+        <!-- Tabs Login / Register -->
+        <div class="auth-tabs-row">
+          <button class="auth-tab-btn active" id="tabBtnLogin" onclick="switchAuthTab('login')">Login</button>
+          <button class="auth-tab-btn" id="tabBtnRegister" onclick="switchAuthTab('register')">Register</button>
+        </div>
+
+        <!-- Form Login -->
+        <form id="formModalLogin" onsubmit="handleModalLogin(event)" style="display: block;">
+          <div class="form-group">
+            <label class="form-label">Email atau Username</label>
+            <div class="input-with-icon">
+              <span class="input-prefix-icon">👤</span>
+              <input type="text" id="modalLoginEmail" placeholder="Masukkan email atau username" value="budi.santoso@desa.local" required="">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-with-icon">
+              <span class="input-prefix-icon">🔒</span>
+              <input type="text" id="modalLoginPassword" placeholder="Masukkan password" value="petani" required="">
+              <button type="button" class="input-password-toggle" onclick="togglePasswordVisibility('modalLoginPassword')">👁️</button>
+            </div>
+          </div>
+
+          <div class="auth-row-options">
+            <label>
+              <input type="checkbox" checked=""> Ingat saya
+            </label>
+            <a href="http://localhost/trackcare/frontend/#" onclick="alert('Simulasi Demo: Gunakan akun demo atau login langsung dengan password demo.'); return false;">Lupa password?</a>
+          </div>
+
+          <button type="submit" class="btn-auth-submit">
+            Login
+          </button>
+
+          <!-- 1-Click Demo Accounts -->
+          <div style="margin-top: 16px;">
+            <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 6px;">Pilih Cepat Akun Demo (1-Klik):</div>
+            <div class="demo-roles-pills">
+              <button type="button" class="demo-pill-btn" onclick="quickFillAccount('farmer')">Petani Demo</button>
+              <button type="button" class="demo-pill-btn" onclick="quickFillAccount('admin')">Admin Demo</button>
+            </div>
+          </div>
+
+          <div class="auth-footer-text">
+            Belum punya akun? <a href="http://localhost/trackcare/frontend/#" onclick="switchAuthTab('register'); return false;">Register di sini</a>
+          </div>
+        </form>
+
+        <!-- Form Register -->
+        <form id="formModalRegister" onsubmit="handleModalRegister(event)" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap</label>
+            <div class="input-with-icon">
+              <span class="input-prefix-icon">👤</span>
+              <input type="text" id="modalRegName" placeholder="Contoh: Budi Santoso" required="">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="input-with-icon">
+              <span class="input-prefix-icon">✉️</span>
+              <input type="email" id="modalRegEmail" placeholder="nama@email.com" required="">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-with-icon">
+              <span class="input-prefix-icon">🔒</span>
+              <input type="password" id="modalRegPassword" placeholder="Buat password aman" required="">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-auth-submit" style="margin-top: 12px;">
+            Daftar Sekarang
+          </button>
+
+          <div class="auth-footer-text">
+            Sudah punya akun? <a href="http://localhost/trackcare/frontend/#" onclick="switchAuthTab('login'); return false;">Login di sini</a>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Riwayat Modal -->
+  <div class="modal-overlay" id="historyDetailModal" onclick="handleModalBackdropClick(event)">
+    <div class="auth-split-card" style="grid-template-columns: 1fr; max-width: 650px; padding: 32px;" onclick="event.stopPropagation()">
+      <button class="auth-modal-close-btn" onclick="closeHistoryModal()">✕</button>
+      <h2 style="font-size: 20px; font-weight: 800; color: var(--charcoal); margin: 0 0 16px 0;" id="histDetailTitle">
+        Rincian Riwayat Konsultasi
+      </h2>
+      <div id="histDetailBody" style="font-size: 14px; line-height: 1.6;">
+        <!-- Populated dynamically -->
+      </div>
+      <div style="margin-top: 24px; text-align: right;">
+        <button class="btn-stepper-back" onclick="closeHistoryModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        Traktor<span>Care</span> — Quick Traktor G1000 Boxer
+      </div>
+      <div style="font-style: italic; color: var(--primary); font-weight: 700;">
+        "Perawatan Tepat, Hasil Pertanian Meningkat!"
+      </div>
+      <div>
+        Tahap: Prototipe PHP Frontend v0.4 SOT
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/mock-data.js.download"></script>
+  <script src="./TraktorCare — Sistem Pakar Perawatan Mesin Traktor Pertanian_files/app.js.download"></script>
+
+
+</body></html>
