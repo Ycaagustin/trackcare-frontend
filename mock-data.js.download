@@ -1,0 +1,1023 @@
+/**
+ * mock-data.js — Basis Pengetahuan Otentik TraktorCare
+ * Sistem Pakar Perawatan Mesin Traktor Quick G1000 Boxer
+ * Menggunakan Metode Forward Chaining
+ * 
+ * SUMBER KEBENARAN PENGETAHUAN (SOT):
+ * Diambil langsung dari dokumen manual/buku panduan milik Pakar Keluarga (Bapak):
+ * 1. Buku Panduan Pengoperasian & Perawatan Traktor Quick G1000 Boxer Single Speed (Hal. 24–25).
+ * 2. Buku Panduan Mesin Diesel Penggerak Horisontal (Bab 4 Hal. 36–40 & Bab 5 Hal. 41–46).
+ * Status: Terverifikasi Buku Panduan Pakar Traktor Keluarga.
+ */
+
+const MOCK_DATA = {
+  // Profil Traktor Fokus
+  tractorInfo: {
+    brand: "TraktorCare",
+    name: "Quick Traktor G1000 Boxer (Single Speed)",
+    engineType: "Mesin Diesel Horisontal 1-Silinder 8.5 HP (Kubota / Sejenis)",
+    transmission: "Kombinasi Gear & Chain, Kopling Kemudi (Dog Clutch)",
+    cooling: "Radiator Sirkulasi Alami / Penguapan",
+    oilCapacity: "2.4 Liter (SAE 40 / 15W-40)",
+    scope: "Traktor Tangan Serbaguna Pengolahan Lahan Sawah Basah & Kering",
+    status: "Mode Prototipe Frontend — Berbasis Manual Kasus Pakar Keluarga"
+  },
+
+  // Peran Pengguna Simulasi (2 Role: Petani & Admin)
+  roles: [
+    { id: "farmer", name: "Pengguna Umum / Petani", badge: "Petani", avatar: "PT", desc: "Konsultasi gejala di sawah, cek solusi manual, baca panduan berkala" },
+    { id: "admin", name: "Administrator Sistem", badge: "Admin", avatar: "AD", desc: "Kelola basis pengetahuan (gejala, aturan, solusi), akun pengguna, dan monitor statistik konsultasi" }
+  ],
+
+  // Kategori Gejala & Komponen Sesuai Buku Panduan
+  categories: [
+    { id: "all", name: "Semua Gejala", icon: "📋" },
+    { id: "chassis", name: "Rangka, Roda & Luku", icon: "🚜" },
+    { id: "starter", name: "Starter & Engkol", icon: "⚡" },
+    { id: "engine", name: "Mesin Diesel & Solar", icon: "⚙️" },
+    { id: "cooling", name: "Sistem Pendingin & Suhu", icon: "🌡️" },
+    { id: "oil", name: "Oli & Pelumasan", icon: "💧" },
+    { id: "transmission", name: "Kopling & Transmisi", icon: "⚙️" }
+  ],
+
+  // Daftar Gejala Otentik Sesuai Folder Kasus (G01 - G22)
+  symptoms: [
+    // --- Kategori Quick G1000 Boxer (Hal 24-25) ---
+    {
+      id: "G01",
+      code: "G01",
+      categoryId: "engine",
+      name: "Mesin diesel berputar sangat berat saat membajak sawah",
+      desc: "Putaran mesin turun drastis dan tertahan saat luku masuk lapisan tanah tebal (Quick Boxer Hal. 24 No. 1).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G02",
+      code: "G02",
+      categoryId: "engine",
+      name: "Knalpot mengeluarkan asap hitam pekat saat diberi beban bajak",
+      desc: "Gas buang solar hitam pekat pekat disertai aroma solar mentah saat membajak lumpur (Quick Boxer Hal. 24 No. 1).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G03",
+      code: "G03",
+      categoryId: "chassis",
+      name: "Traktor macet tertahan tidak kuat menarik luku di sawah",
+      desc: "Mata luku menancap terlalu dalam ke tanah sehingga traktor mandek tidak melaju (Quick Boxer Hal. 24 No. 2).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G04",
+      code: "G04",
+      categoryId: "chassis",
+      name: "Traktor berjalan tidak lurus / stang mendorong keras ke samping",
+      desc: "Operator harus terus menahan dorongan stang ke samping karena traktor cenderung belok liar (Quick Boxer Hal. 24 No. 3).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G05",
+      code: "G05",
+      categoryId: "chassis",
+      name: "Roda traktor berputar di tempat (slip) karena tanah blocking",
+      desc: "Gumpalan tanah sawah setengah basah menempel padat menutupi sirip roda besi (Quick Boxer Hal. 24 No. 4).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G06",
+      code: "G06",
+      categoryId: "chassis",
+      name: "Traktor terasa miring ekstrem dan akan terguling / terbalik",
+      desc: "Keseimbangan traktor hilang di kontur miring atau bibir pematang sawah (Quick Boxer Hal. 25 No. 5).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G07",
+      code: "G07",
+      categoryId: "transmission",
+      name: "Traktor sering belok sendiri tanpa menarik tuas kopling kemudi",
+      desc: "Traktor berbelok sendiri tanpa instruksi kemudi akibat pegas atau roda gigi aus (Quick Boxer Hal. 25 No. 6).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G08",
+      code: "G08",
+      categoryId: "transmission",
+      name: "Tali sabuk V-Belt cepat rusak, berdecit keras, atau putus",
+      desc: "Sabuk penghubung puli mesin dan transmisi sering kendor, selip atau cepat aus (Quick Boxer Hal. 25 No. 7).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G09",
+      code: "G09",
+      categoryId: "chassis",
+      name: "Roda traktor terperosok ke dalam lubang / sumur sawah dalam",
+      desc: "Roda besi traktor ambles masuk ke lubang lumpur tanpa pijakan traksi (Quick Boxer Hal. 25 No. 8).",
+      status: "DISETUJUI"
+    },
+
+    // --- Kategori Mesin Diesel (Bab 5 Hal 41-46 & Operasional) ---
+    {
+      id: "G10",
+      code: "G10",
+      categoryId: "starter",
+      name: "Mesin diesel susah dihidupkan saat diengkol",
+      desc: "Engkol diputar berulang-ulang tetapi mesin tidak kunjung menyala (Mesin Diesel Bab 5 Hal. 41 No. 1).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G11",
+      code: "G11",
+      categoryId: "engine",
+      name: "Terdapat gelembung udara dalam saluran solar (masuk angin)",
+      desc: "Aliran bahan bakar terputus karena ada udara palsu terjebak di selang atau filter solar (Mesin Hal. 41 No. 2).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G12",
+      code: "G12",
+      categoryId: "engine",
+      name: "Minyak solar kotor, bercampur tetesan air, atau membeku",
+      desc: "Kualitas bahan bakar solar buruk, ada endapan air atau kental akibat cuaca dingin (Mesin Hal. 41 No. 2).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G13",
+      code: "G13",
+      categoryId: "starter",
+      name: "Engkol terasa sangat ringan tanpa tahanan kompresi (blong)",
+      desc: "Tekanan kompresi silinder hilang; goyangan engkol tidak terasa tahanan ledak (Mesin Hal. 41 No. 3).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G14",
+      code: "G14",
+      categoryId: "engine",
+      name: "Tenaga mesin diesel drop / loyo saat menarik beban bajak",
+      desc: "Mesin kekurangan daya saat traktor beroperasi di lahan sawah (Mesin Diesel Hal. 43).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G15",
+      code: "G15",
+      categoryId: "engine",
+      name: "Saringan udara (air cleaner) tersumbat debu jerami dan tanah",
+      desc: "Pori-pori elemen saringan tertutup debu jerami padi dan partikel tanah sawah (Mesin Hal. 43 No. 3).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G16",
+      code: "G16",
+      categoryId: "engine",
+      name: "Putaran mesin pincang, tersendat, dan terdengar letupan",
+      desc: "Mesin beroperasi tidak stabil / mbrebet disertai suara letupan sporadis (Mesin Hal. 44).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G17",
+      code: "G17",
+      categoryId: "oil",
+      name: "Lubang knalpot basah berleleran oli mesin",
+      desc: "Cairan oli mesin rembes keluar melalui pipa manifold knalpot pembuangan (Mesin Hal. 45 No. 2).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G18",
+      code: "G18",
+      categoryId: "oil",
+      name: "Pelampung indikator oli drop / oli di bawah batas minimum",
+      desc: "Tekanan oli rendah atau volume oli di dalam karter kurang dari takaran normal (Mesin Hal. 46 No. 3).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G19",
+      code: "G19",
+      categoryId: "engine",
+      name: "RPM mesin berayun-ayun naik-turun sendiri (hunting)",
+      desc: "Laju putaran mesin berfluktuasi tanpa tuas gas digerakkan oleh operator (Mesin Hal. 46 No. 5).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G20",
+      code: "G20",
+      categoryId: "cooling",
+      name: "Air pendingin radiator mendidih menyembur atau cepat habis",
+      desc: "Suhu mesin meningkat drastis akibat gangguan sirkulasi atau air pendingin tekor (Mesin Hal. 29–34).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G21",
+      code: "G21",
+      categoryId: "starter",
+      name: "Suhu udara lingkungan sekitar sangat dingin di pagi hari",
+      desc: "Suhu udara dingin membekukan minyak solar dan menyulitkan titik bakar awal (Mesin Hal. 41 No. 1).",
+      status: "DISETUJUI"
+    },
+    {
+      id: "G22",
+      code: "G22",
+      categoryId: "cooling",
+      name: "Pipa pernapasan mesin menyemburkan asap putih tebal dan panas",
+      desc: "Tanda bahaya bahwa bantalan poros (metal jalan) panas terbakar akibat pelumasan gagal (Mesin Hal. 34 No. 2).",
+      status: "DISETUJUI"
+    }
+  ],
+
+  // Entitas Dugaan Gangguan & Pemecahan Otentik Sesuai Buku Panduan (P01 - P16)
+  faults: [
+    {
+      id: "P01",
+      code: "P01",
+      name: "Beban Bajak / Luku Terlalu Dalam di Sawah",
+      confidence: "90%",
+      riskLevel: "Perlu Penyesuaian Beban Kerja Segera",
+      desc: "Traktor bekerja dengan beban berlebih karena mata luku menancap terlalu dalam pada lapisan lumpur bervariasi.",
+      causes: [
+        "Mata luku menancap terlalu dalam di tanah sawah dengan kedalaman tidak rata",
+        "Putaran diesel tertahan beban gesek tanah liat pekat",
+        "Setelan gas diesel belum disesuaikan dengan kontur tanah"
+      ],
+      recommendations: [
+        "Angkat stang traktor ke atas untuk mengurangi kedalaman luku sampai mesin bekerja normal kembali",
+        "Sesuaikan bukaan tuas gas diesel (tambah gas secara wajar sesuai beban kerja)",
+        "Jaga posisi traktor tetap stabil saat melintasi tanah dengan variasi kedalaman besar"
+      ],
+      source: "Buku Panduan Quick G1000 Boxer (Hal. 24 Permasalahan No. 1)",
+      image: "assets/img/hero-banner-card.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P02",
+      code: "P02",
+      name: "Traktor Macet Tertahan Luku Terlalu Dalam",
+      confidence: "88%",
+      riskLevel: "Penyetelan Implement / Luku Diperlukan",
+      desc: "Mesin traktor tidak kuat menarik bajak karena ulir kedalaman luku disetel terlalu menukik ke dasar tanah.",
+      causes: [
+        "Ulir pengatur kedalaman luku disetel terlalu rendah ke bawah",
+        "Tanah liat mencengkeram kuat mata singkal bajak",
+        "Traktor tertahan di kubangan lumpur padat"
+      ],
+      recommendations: [
+        "Aturlah kedalaman luku dengan memutar ulir pengatur yang tersedia di pangkal bajak",
+        "Jika belum berhasil, tarik pen (Hitch Pin) atau lepaskan baut batang luku untuk melepas luku",
+        "Jalankan traktor tanpa luku sambil stang diangkat ke atas hingga traktor keluar dari titik macet",
+        "Pasang kembali luku setelah traktor berada pada posisi normal dan datar"
+      ],
+      source: "Buku Panduan Quick G1000 Boxer (Hal. 24 Permasalahan No. 2)",
+      image: "assets/img/hero-banner-card.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P03",
+      code: "P03",
+      name: "Ketidakseimbangan Jalur Tarik / Posisi Hitch Pin Melenceng",
+      confidence: "85%",
+      riskLevel: "Penyetelan Titik Gandeng Implement",
+      desc: "Traktor cenderung melenceng dan stang mendorong ke salah satu sisi akibat titik tumpu gandengan bajak tidak di tengah.",
+      causes: [
+        "Pen penggandeng (Hitch Pin) terpasang di lubang samping, bukan lubang tengah",
+        "Salah satu roda mengalami slip sehingga gaya dorong traktor asimetris",
+        "Kelurusan implement bajak terhadap rangka traktor bergeser"
+      ],
+      recommendations: [
+        "Hentikan traktor dan pindahkan pen (Hitch Pin) ke posisi lubang tengah pada batang penggandeng",
+        "Pastikan kedua roda mendapatkan cengkeraman seimbang di tanah sawah",
+        "Periksa apakah stang traktor sudah bergerak lurus tanpa dorongan liar ke samping"
+      ],
+      source: "Buku Panduan Quick G1000 Boxer (Hal. 24 Permasalahan No. 3)",
+      image: "assets/img/tractor-about.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P04",
+      code: "P04",
+      name: "Roda Besi Slip Akibat Blocking Gumpalan Tanah Sawah",
+      confidence: "90%",
+      riskLevel: "Pembersihan Roda & Pengairan Lahan",
+      desc: "Roda besi traktor berputar di tempat karena rongga sirip roda tertutup tanah sawah setengah kering yang liat.",
+      causes: [
+        "Tanah sawah dalam kondisi setengah kering / setengah basah yang mudah menggumpal",
+        "Gumpalan tanah sawah menempel padat pada sepatu roda besi (blocking)",
+        "Permukaan lahan sawah kekurangan genangan air peredam kelengketan lumpur"
+      ],
+      recommendations: [
+        "Bersihkan roda traktor dari gumpalan tanah yang menempel sedini mungkin sebelum mengeras",
+        "Aliri lahan sawah dengan air secukupnya agar lumpur melunak dan tidak menempel pada sirip roda",
+        "Gunakan alat pencungkil tanah darurat untuk membebaskan sela-sela sirip roda"
+      ],
+      source: "Buku Panduan Quick G1000 Boxer (Hal. 24 Permasalahan No. 4)",
+      image: "assets/img/tractor-clean.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P05",
+      code: "P05",
+      name: "Kondisi Kritis: Risiko Traktor Terguling / Masuk Air",
+      confidence: "95%",
+      riskLevel: "BAHAYA KESELAMATAN TINGGI — Hentikan Mesin Segera",
+      desc: "Traktor miring ekstrem dan berisiko terbalik ke saluran air atau pematang sawah yang berpotensi merusak mesin secara fatal.",
+      causes: [
+        "Traktor terperosok ke parit atau bibir pematang sawah yang curam",
+        "Titik keseimbangan traktor hilang akibat kedalaman lumpur tidak seimbang",
+        "Implement bajak tersangkut tunggul tanah keras"
+      ],
+      recommendations: [
+        "TINDAKAN DARURAT: Secepatnya matikan tuas gas / mesin diesel untuk menghindari masuknya air ke dalam lubang hisap udara (inlet udara) jika traktor benar-benar terguling",
+        "JANGAN menahan stang dengan kekuatan tubuh jika traktor sudah miring berbahaya agar terhindar dari cedera",
+        "Lakukan evakuasi traktor dalam keadaan mesin mati total bersama rekan petani"
+      ],
+      source: "Buku Panduan Quick G1000 Boxer (Hal. 25 Permasalahan No. 5)",
+      image: "assets/img/tractor-hero.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P06",
+      code: "P06",
+      name: "Gangguan Transmisi Kemudi & Pegas Kopling (Clutch Spring)",
+      confidence: "88%",
+      riskLevel: "Pemeriksaan Mekanisme Kemudi & Sprocket",
+      desc: "Traktor berbelok sendiri tanpa menarik tuas kopling kemudi karena setelan kopling salah, pegas terbalik, atau gigi kopling aus.",
+      causes: [
+        "Pegas kopling kemudi (Clutch Spring) terpasang terbalik antara posisi kiri dan kanan",
+        "Setelan kawat penarik kopling kemudi terlalu tegang atau tidak seimbang",
+        "Bidang kontak (dog) pada Sprocket dan Steering Gear telah aus terkikis"
+      ],
+      recommendations: [
+        "Pastikan setelan kabel kopling kemudi sudah benar dan memiliki jarak bebas (free play)",
+        "Pastikan pegas kopling (Clutch Spring) berada pada posisi yang benar (tidak terbalik kiri-kanan, sesuai panduan manual hal. 21)",
+        "Tukarkan posisi Steering Gear kiri dan kanan jika bidang kontak (dog) sprocket dan gear sudah aus",
+        "Pastikan Clutch Spring tetap dalam posisi terpasang kokoh"
+      ],
+      source: "Buku Panduan Quick G1000 Boxer (Hal. 25 Permasalahan No. 6)",
+      image: "assets/img/engine-sample.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P07",
+      code: "P07",
+      name: "Puli Tidak Sejajar & Ketegangan V-Belt Tidak Sesuai",
+      confidence: "92%",
+      riskLevel: "Penyetelan & Kalibrasi Sabuk Penggerak",
+      desc: "Tali kipas / sabuk V-Belt cepat rusak, selip berdecit, atau putus karena puli tidak satu garis lurus atau tegangan sabuk salah.",
+      causes: [
+        "Pulley Utama traktor dan Pulley Mesin Diesel tidak sejajar / miring satu bidang",
+        "Ketegangan sabuk V-Belt terlalu kendor sehingga selip dan panas, atau terlalu kencang sehingga sabuk putus",
+        "Tension Rod Adjustment belum dikalibrasi pasca penggantian sabuk baru"
+      ],
+      recommendations: [
+        "Pastikan Pulley Utama dan Pulley Diesel berada pada posisi lurus sejajar satu bidang",
+        "Atur kekencangan V-Belt dengan membebani tegak lurus di pertengahan panjang V-Belt seberat 2 kg, lalu atur Tension Rod Adjustment hingga defleksi sebesar ± 1 1/2 cm (15 mm)",
+        "Lakukan kontrol kekencangan V-Belt setelah 24 jam pertama pemakaian baru dan atur kembali jika terjadi peregangan"
+      ],
+      source: "Buku Panduan Quick G1000 Boxer (Hal. 25 Permasalahan No. 7)",
+      image: "assets/img/guide-filter.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P08",
+      code: "P08",
+      name: "Roda Ambles Terperosok Lubang / Sumur Lumpur Sawah",
+      confidence: "95%",
+      riskLevel: "Prosedur Evakuasi Mandiri di Sawah",
+      desc: "Roda besi traktor terbenam ke dalam lubang sumur sawah yang dalam dan tidak dapat keluar dengan tenaga traksi biasa.",
+      causes: [
+        "Roda besi menginjak kubangan lumpur sawah yang dalam atau sumur drainase tak bertanda",
+        "Roda kehilangan kontak cengkeraman dasar tanah"
+      ],
+      recommendations: [
+        "Ambil seutas tali tambang yang kuat",
+        "Ikatkan salah satu ujung tali pada bagian tengah sepatu roda besi yang terperosok",
+        "Ikatkan ujung tali lainnya pada batang pohon atau tonggak kokoh di depan traktor",
+        "Jalankan traktor secara perlahan: putaran roda akan menggulung tali pada sepatu roda dan secara otomatis menarik traktor keluar dari lubang sumur sawah"
+      ],
+      source: "Buku Panduan Quick G1000 Boxer (Hal. 25 Permasalahan No. 8)",
+      image: "assets/img/tractor-clean.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P09",
+      code: "P09",
+      name: "Masalah Pasokan Bahan Bakar Solar & Injektor (Mesin Susah Hidup)",
+      confidence: "92%",
+      riskLevel: "Servis Sistem Bahan Bakar Diesel",
+      desc: "Mesin diesel sulit dihidupkan saat diengkol akibat udara terjebak (masuk angin), solar bercampur air, atau nosel injektor kotor.",
+      causes: [
+        "Terdapat gelembung udara dalam pipa saluran bahan bakar (masuk angin)",
+        "Minyak solar terkontaminasi air atau saringan solar tersumbat endapan",
+        "Mulut lubang jarum nosel (nozzle injector) berkerak karbon atau tekanannya kurang",
+        "Suhu udara lingkungan dingin membekukan minyak solar"
+      ],
+      recommendations: [
+        "Lakukan pembuangan udara palsu (bleeding) pada kran filter solar dan pipa tekanan tinggi hingga solar murni keluar tanpa buih",
+        "Kuras tangki bahan bakar dan bersihkan atau ganti sumbu elemen saringan solar",
+        "Bersihkan lubang nosel dan stel kembali tekanan semprot injektor ke standar 14.2 ± 0.5 MPa (145 ± 5 kg/cm²)",
+        "Bila suhu udara sangat dingin, masukkan air panas ke dalam bak pendingin silinder sebelum mengengkol"
+      ],
+      source: "Buku Panduan Mesin Diesel Bab 5 (Hal. 41 No. 1 & No. 2)",
+      image: "assets/img/engine-sample.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P10",
+      code: "P10",
+      name: "Kebocoran Kompresi Silinder & Katup Klep (Kompresi Blong)",
+      confidence: "90%",
+      riskLevel: "Servis Silinder Head & Penyetelan Klep",
+      desc: "Saat mesin diengkol terasa sangat ringan tanpa tahanan kompresi ledak, menandakan kerapatan ruang bakar bocor.",
+      causes: [
+        "Mur penutup silinder head kendor atau paking silinder (head gasket) rusak bocor",
+        "Katup klep masuk/buang berkerak karbon atau dudukannya bocor (tidak menutup rapat)",
+        "Celah katup (setelan klep) terlalu rapat atau bosh klep macet",
+        "Ring piston (cincin sumbatan) aus, macet berkerak, atau liner silinder tergores"
+      ],
+      recommendations: [
+        "Kencangkan mur silinder head secara menyilang rata dengan torsi 120–150 N.m, ganti alas paking silinder jika rusak",
+        "Lakukan penyekiran katup klep (skir klep) agar daun katup menapak rapat sempurna pada dudukannya",
+        "Setel celah katup klep saat mesin dingin sesuai ukuran standar pabrik",
+        "Bongkar dan periksa ring piston: bersihkan alur kerak karbon atau ganti ring piston baru"
+      ],
+      source: "Buku Panduan Mesin Diesel Bab 5 (Hal. 41 No. 3 & Hal. 42)",
+      image: "assets/img/engine-sample.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P11",
+      code: "P11",
+      name: "Penurunan Daya Mesin Akibat Penyumbatan Filter & Aliran Solar",
+      confidence: "88%",
+      riskLevel: "Perawatan Saringan Udara & Pasokan Solar",
+      desc: "Mesin hidup normal saat idle tetapi loyo dan drop tenaganya saat bajak masuk tanah akibat pasokan oksigen dan solar tersendat.",
+      causes: [
+        "Saringan udara (air cleaner) tersumbat debu jerami dan partikel tanah sawah",
+        "Penyaring minyak diesel atau pipa saluran solar tersumbat sebagian",
+        "Sudut pemasokan bahan bakar (fuel supply advance angle) tidak tepat"
+      ],
+      recommendations: [
+        "Bongkar sumbu saringan udara, bersihkan dengan tiupan kompresor udara dari dalam ke luar atau ganti elemen saringan",
+        "Buka kran solar, cuci saringan minyak dan saluran pipa solar",
+        "Setel kembali sudut penginjeksian bahan bakar ke posisi standar 22 ± 2° sebelum Titik Mati Atas (TMA)"
+      ],
+      source: "Buku Panduan Mesin Diesel Bab 5 (Hal. 43)",
+      image: "assets/img/guide-filter.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P12",
+      code: "P12",
+      name: "Pembakaran Tidak Stabil / Gangguan Injektor & Governor",
+      confidence: "87%",
+      riskLevel: "Penyetelan Sistem Injeksi & Governor",
+      desc: "Putaran mesin tidak rata, bersuara pincang, dan sesekali terdengar letupan dari knalpot akibat pengabutan solar tidak sempurna.",
+      causes: [
+        "Ada gelembung udara dalam pipa saluran solar atau solar tercampur air",
+        "Katup jarum nosel macet atau tekanan semprot pengabutan terlalu tinggi",
+        "Mekanisme tiang pengatur laju / governor kotor atau aus"
+      ],
+      recommendations: [
+        "Buangkan udara dalam sistem saluran solar (bleeding solar)",
+        "Kuras bahan bakar di tangki dan ganti dengan solar bersih berkualitas baik",
+        "Periksa nosel injektor: bersihkan katup jarum atau ganti katup pengeluar (delivery valve) pompa injeksi",
+        "Periksa kelancaran gerak tuas governor pengatur putaran"
+      ],
+      source: "Buku Panduan Mesin Diesel Bab 5 (Hal. 44)",
+      image: "assets/img/engine-sample.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P13",
+      code: "P13",
+      name: "Rembesan Oli ke Ruang Bakar / Ring Piston Aus",
+      confidence: "90%",
+      riskLevel: "Perbaikan Komponen Piston & Silinder",
+      desc: "Knalpot basah mengeluarkan tetesan oli mesin disertai asap kebiruan tanda oli ikut terbakar di ruang bakar silinder.",
+      causes: [
+        "Ring piston atau dinding liner silinder aus terkikis",
+        "Pemasangan ring piston terbalik (tanda permukaan atas tidak menghadap ke atas)",
+        "Pipa pengarah katup (bosh klep) aus sehingga oli merembes turun",
+        "Volume oli mesin di dalam karter diisi berlebihan melampaui batas garis atas"
+      ],
+      recommendations: [
+        "Periksa stik oli mesin: jika oli berlebih melampaui garis atas, buang oli hingga berada di antara dua garis batas",
+        "Bongkar silinder, ganti ring piston aus dan pastikan tanda 'atas' menghadap ke arah yang benar",
+        "Periksa kerapatan bosh klep dan ganti bila oblak"
+      ],
+      source: "Buku Panduan Mesin Diesel Bab 5 (Hal. 45 No. 2)",
+      image: "assets/img/guide-oil.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P14",
+      code: "P14",
+      name: "Tekanan Sirkulasi Pelumasan Rendah / Oli Mesin Tekor",
+      confidence: "94%",
+      riskLevel: "BAHAYA KERUSAKAN LOGAM — Hentikan Mesin Segera",
+      desc: "Pelampung oli drop dan pelumasan mesin berkurang drastis berisiko menyebabkan stang piston dan metal kruk as terbakar leleh.",
+      causes: [
+        "Volume oli mesin di dalam karter kurang dari takaran standar (bocor atau menguap)",
+        "Saringan sirkulasi oli tersumbat kotoran kerak pekat",
+        "Pompa oli mesin atau celah roda gigi pompa aus terkikis"
+      ],
+      recommendations: [
+        "MATIKAN MESIN SEGERA: Jangan biarkan mesin hidup saat pelumasan tekor untuk mencegah metal poros engkol rusak",
+        "Tambahkan oli mesin sesuai standar SAE 40 hingga mencapai batas garis ukur atas dipstick (2.4 Liter)",
+        "Bongkar dan bersihkan saringan karter oli dalam solar bersih",
+        "Periksa baut tap pembuangan oli dan paking karter dari rembesan kebocoran"
+      ],
+      source: "Buku Panduan Mesin Diesel Bab 5 (Hal. 46 No. 3)",
+      image: "assets/img/guide-oil.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P15",
+      code: "P15",
+      name: "Putaran Mesin Hunting / Pegas Governor Kendor",
+      confidence: "85%",
+      riskLevel: "Penyetelan Mekanis Governor",
+      desc: "RPM mesin berayun-ayun naik turun sendiri secara berulang tanpa sentuhan pada tuas gas akibat kontrol governor tidak stabil.",
+      causes: [
+        "Kepala baut nepel pipa penyalur solar mengalami kebocoran udara halus",
+        "Pegas pengatur laju (governor spring) kendor atau paku penyetel laju goyang"
+      ],
+      recommendations: [
+        "Kencangkan semua sambungan nepel pipa solar dan ganti ring perapat tembaga jika ada rembesan",
+        "Setel ulang ketegangan pegas pengatur laju dan kencangkan baut pengunci governor"
+      ],
+      source: "Buku Panduan Mesin Diesel Bab 5 (Hal. 46 No. 5)",
+      image: "assets/img/engine-sample.png",
+      status: "DISETUJUI"
+    },
+    {
+      id: "P16",
+      code: "P16",
+      name: "Kondisi Kritis: Overheating Parah / Metal Poros Terbakar",
+      confidence: "96%",
+      riskLevel: "BAHAYA FATAL MESIN — Tanggap Darurat Segera",
+      desc: "Suhu mesin melonjak tinggi, radiator mendidih kering, atau tabung pernapasan menyemburkan asap putih panas tanda metal leleh.",
+      causes: [
+        "Air pendingin radiator habis / bocor sehingga sirkulasi pendinginan gagal total",
+        "Bantalan poros stang piston (metal jalan) panas berlebih akibat pelumasan terhenti",
+        "Mesin dipaksa beroperasi terus menerus dengan beban berat tanpa jeda pendinginan"
+      ],
+      recommendations: [
+        "TINDAKAN DARURAT: Segera kurangi beban dan matikan mesin diesel secara aman!",
+        "DILARANG menuangkan air dingin mendadak ke radiator yang mendidih kering saat mesin masih panas karena blok silinder bisa pecah seketika!",
+        "Biarkan mesin dingin secara alami selama 1-2 jam sebelum memeriksa volume air radiator dan oli mesin",
+        "Periksa apakah stang piston terkunci atau berputar berat sebelum mencoba menghidupkan kembali"
+      ],
+      source: "Buku Panduan Mesin Diesel (Hal. 29–35)",
+      image: "assets/img/guide-cooling.png",
+      status: "DISETUJUI"
+    }
+  ],
+
+  // Aturan Produksi IF-THEN Forward Chaining Otentik (R-001 s.d R-020)
+  rules: [
+    {
+      id: "R01",
+      code: "R-001",
+      symptomCodes: ["G01", "G02"],
+      conclusionFaultId: "P01",
+      confidence: "90%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Quick G1000 Boxer Hal. 24 No. 1",
+      status: "DISETUJUI",
+      note: "Putaran mesin drop berat disertai asap hitam pekat saat bajak masuk menandakan luku terlalu dalam."
+    },
+    {
+      id: "R02",
+      code: "R-002",
+      symptomCodes: ["G03"],
+      conclusionFaultId: "P02",
+      confidence: "88%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Quick G1000 Boxer Hal. 24 No. 2",
+      status: "DISETUJUI",
+      note: "Traktor macet tidak kuat menarik luku; atur ulir atau lepaskan pen luku sementara."
+    },
+    {
+      id: "R03",
+      code: "R-003",
+      symptomCodes: ["G04"],
+      conclusionFaultId: "P03",
+      confidence: "85%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Quick G1000 Boxer Hal. 24 No. 3",
+      status: "DISETUJUI",
+      note: "Traktor melenceng ke samping; pindahkan pen penggandeng (Hitch Pin) ke lubang tengah."
+    },
+    {
+      id: "R04",
+      code: "R-004",
+      symptomCodes: ["G05"],
+      conclusionFaultId: "P04",
+      confidence: "90%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Quick G1000 Boxer Hal. 24 No. 4",
+      status: "DISETUJUI",
+      note: "Roda slip blocking tanah liat setengah basah; bersihkan sirip roda dan aliri air sawah."
+    },
+    {
+      id: "R05",
+      code: "R-005",
+      symptomCodes: ["G06"],
+      conclusionFaultId: "P05",
+      confidence: "95%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Quick G1000 Boxer Hal. 25 No. 5",
+      status: "DISETUJUI",
+      note: "Traktor miring ekstrem akan terguling; secepatnya matikan diesel agar air tidak masuk inlet udara."
+    },
+    {
+      id: "R06",
+      code: "R-006",
+      symptomCodes: ["G07"],
+      conclusionFaultId: "P06",
+      confidence: "88%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Quick G1000 Boxer Hal. 25 No. 6",
+      status: "DISETUJUI",
+      note: "Traktor belok sendiri tanpa kopling; cek arah pegas clutch spring atau tukar posisi steering gear."
+    },
+    {
+      id: "R07",
+      code: "R-007",
+      symptomCodes: ["G08"],
+      conclusionFaultId: "P07",
+      confidence: "92%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Quick G1000 Boxer Hal. 25 No. 7",
+      status: "DISETUJUI",
+      note: "V-Belt cepat aus/putus; luruskan puli dan atur tegangan sabuk dengan defleksi 1.5 cm beban 2 kg."
+    },
+    {
+      id: "R08",
+      code: "R-008",
+      symptomCodes: ["G09"],
+      conclusionFaultId: "P08",
+      confidence: "95%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Quick G1000 Boxer Hal. 25 No. 8",
+      status: "DISETUJUI",
+      note: "Roda terperosok sumur lumpur sawah; gunakan metode gulung tali pada sepatu roda yang diikat ke tonggak pohon."
+    },
+    {
+      id: "R09",
+      code: "R-009",
+      symptomCodes: ["G10", "G11"],
+      conclusionFaultId: "P09",
+      confidence: "92%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 41 No. 2",
+      status: "DISETUJUI",
+      note: "Mesin susah hidup akibat saluran bahan bakar kemasukan angin palsu; lakukan bleeding solar."
+    },
+    {
+      id: "R10",
+      code: "R-010",
+      symptomCodes: ["G10", "G12"],
+      conclusionFaultId: "P09",
+      confidence: "88%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 41 No. 2",
+      status: "DISETUJUI",
+      note: "Solar tercampur air atau kotor; kuras tangki bahan bakar dan bersihkan saringan solar."
+    },
+    {
+      id: "R11",
+      code: "R-011",
+      symptomCodes: ["G10", "G21"],
+      conclusionFaultId: "P09",
+      confidence: "85%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 41 No. 1",
+      status: "DISETUJUI",
+      note: "Suhu udara dingin; masukkan air panas ke bak radiator untuk memanaskan blok silinder sebelum engkol."
+    },
+    {
+      id: "R12",
+      code: "R-012",
+      symptomCodes: ["G10", "G13"],
+      conclusionFaultId: "P10",
+      confidence: "90%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 41 No. 3 & Hal. 42",
+      status: "DISETUJUI",
+      note: "Engkol ringan tanpa kompresi; kencangkan baut head silinder, skir katup klep atau ganti ring piston."
+    },
+    {
+      id: "R13",
+      code: "R-013",
+      symptomCodes: ["G14", "G15"],
+      conclusionFaultId: "P11",
+      confidence: "88%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 43 No. 3",
+      status: "DISETUJUI",
+      note: "Tenaga drop saat bajak akibat saringan udara tertutup debu jerami; semprot atau ganti elemen filter."
+    },
+    {
+      id: "R14",
+      code: "R-014",
+      symptomCodes: ["G14", "G11"],
+      conclusionFaultId: "P11",
+      confidence: "85%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 43 No. 1",
+      status: "DISETUJUI",
+      note: "Tenaga mesin loyo karena pasokan solar tersendat sebagian; cuci saringan dan pipa solar."
+    },
+    {
+      id: "R15",
+      code: "R-015",
+      symptomCodes: ["G16", "G11"],
+      conclusionFaultId: "P12",
+      confidence: "87%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 44 No. 1",
+      status: "DISETUJUI",
+      note: "Putaran mesin pincang dan meletup; servis nosel injektor dan pastikan saluran solar bebas udara."
+    },
+    {
+      id: "R16",
+      code: "R-016",
+      symptomCodes: ["G17", "G14"],
+      conclusionFaultId: "P13",
+      confidence: "90%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 45 No. 2",
+      status: "DISETUJUI",
+      note: "Knalpot basah oli mesin dan tenaga berkurang; periksa keausan ring piston atau stik oli berlebih."
+    },
+    {
+      id: "R17",
+      code: "R-017",
+      symptomCodes: ["G18"],
+      conclusionFaultId: "P14",
+      confidence: "94%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 46 No. 3",
+      status: "DISETUJUI",
+      note: "Pelampung oli drop; matikan mesin segera dan isi oli SAE 40 hingga garis atas dipstick (2.4 L)."
+    },
+    {
+      id: "R18",
+      code: "R-018",
+      symptomCodes: ["G19"],
+      conclusionFaultId: "P15",
+      confidence: "85%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Bab 5 Hal. 46 No. 5",
+      status: "DISETUJUI",
+      note: "RPM hunting berayun naik-turun; kencangkan nepel pipa solar dan setel pegas governor."
+    },
+    {
+      id: "R19",
+      code: "R-019",
+      symptomCodes: ["G20"],
+      conclusionFaultId: "P16",
+      confidence: "92%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Hal. 29–34",
+      status: "DISETUJUI",
+      note: "Air radiator mendidih; jangan siram air dingin mendadak, biarkan dingin alami untuk mencegah blok silinder retak."
+    },
+    {
+      id: "R20",
+      code: "R-020",
+      symptomCodes: ["G22"],
+      conclusionFaultId: "P16",
+      confidence: "96%",
+      expertValidator: "Pakar Traktor Keluarga (Bapak)",
+      validatedAt: "Buku Panduan Mesin Diesel Hal. 34 No. 2",
+      status: "DISETUJUI",
+      note: "Pipa pernapasan keluar asap putih pekat; tanda metal bantalan stang piston panas terbakar, matikan mesin seketika!"
+    }
+  ],
+
+  // Panduan Perawatan Berkala Otentik (Buku Mesin Bab 4 Hal. 36–40)
+  maintenanceGuides: [
+    {
+      id: "M01",
+      title: "1. Pemeliharaan Harian (Sebelum & Sesudah Bekerja)",
+      category: "oil",
+      interval: "Interval: Setiap Hari Sebelum Masuk Sawah",
+      desc: "Periksa level oli mesin via dipstick di antara 2 garis batas. Cek air pendingin radiator dan pastikan tidak ada kebocoran solar, oli, atau air. Bersihkan lumpur tanah yang menempel pada roda besi dan rangka.",
+      image: "assets/img/guide-oil.png",
+      badge: "Wajib Tiap Operasi",
+      tips: "Gunakan air hujan atau air kali jernih bebas kapur; dilarang menggunakan air asin atau keruh berlumpur."
+    },
+    {
+      id: "M02",
+      title: "2. Pemeliharaan Tingkat Satu (100 Jam Kerja)",
+      category: "oil",
+      interval: "Interval: Setiap 100 Jam Pemakaian",
+      desc: "Ganti oli mesin diesel (kapasitas 2.4 Liter SAE 40 / 15W-40). Kuras oli saat mesin masih hangat agar endapan kotoran keluar sempurna. Cuci saringan kasa oli di dasar karter dalam solar bersih.",
+      image: "assets/img/guide-oil.png",
+      badge: "Ganti Pelumas",
+      tips: "Jangan mencampurkan sisa oli bekas dengan oli baru untuk menjaga usia metal jalan kruk as."
+    },
+    {
+      id: "M03",
+      title: "3. Pembersihan Saringan Udara & Filter Solar",
+      category: "chassis",
+      interval: "Interval: Setiap 50 - 100 Jam Kerja",
+      desc: "Bongkar sumbu saringan udara, bersihkan dari endapan debu jerami kering. Cuci elemen filter bahan bakar solar dan bersihkan kran pengendap air dari kotoran lumpur solar.",
+      image: "assets/img/guide-filter.png",
+      badge: "Pencegahan Drop Tenaga",
+      tips: "Semprot elemen saringan udara dari arah dalam keluar menggunakan kompresor bertekanan sedang."
+    },
+    {
+      id: "M04",
+      title: "4. Pemeliharaan Tingkat Dua (500 Jam Kerja)",
+      category: "cooling",
+      interval: "Interval: Setiap 500 Jam Pemakaian",
+      desc: "Periksa dan setel celah katup klep masuk dan buang. Uji semprot dan tekanan nosel injektor ke standar 14.2 ± 0.5 MPa. Periksa kekencangan baut silinder head (120–150 N.m), baut stang piston, dan roda gila.",
+      image: "assets/img/engine-sample.png",
+      badge: "Servis Menyeluruh",
+      tips: "Setel defleksi sabuk V-Belt sebesar ± 1.5 cm di bawah beban 2 kg pada baut Tension Rod Adjustment."
+    }
+  ],
+
+  // Data Tabel Basis Pengetahuan untuk Screen 6 (Mokup.png)
+  knowledgeBase: {
+    symptoms: [
+      { no: 1, name: "Mesin berat saat membajak sawah", desc: "Quick Boxer Hal. 24 No. 1", status: "Buku Quick G1000" },
+      { no: 2, name: "Asap knalpot hitam pekat saat bajak", desc: "Quick Boxer Hal. 24 No. 1", status: "Buku Quick G1000" },
+      { no: 3, name: "Traktor macet tertahan luku", desc: "Quick Boxer Hal. 24 No. 2", status: "Buku Quick G1000" },
+      { no: 4, name: "Traktor jalan melenceng / stang dorong samping", desc: "Quick Boxer Hal. 24 No. 3", status: "Buku Quick G1000" },
+      { no: 5, name: "Roda slip blocking gumpalan tanah", desc: "Quick Boxer Hal. 24 No. 4", status: "Buku Quick G1000" },
+      { no: 6, name: "Traktor miring ekstrem akan terguling", desc: "Quick Boxer Hal. 25 No. 5", status: "Buku Quick G1000" },
+      { no: 7, name: "Traktor belok sendiri tanpa kopling", desc: "Quick Boxer Hal. 25 No. 6", status: "Buku Quick G1000" },
+      { no: 8, name: "V-Belt cepat aus, berdecit, atau putus", desc: "Quick Boxer Hal. 25 No. 7", status: "Buku Quick G1000" },
+      { no: 9, name: "Roda terperosok lubang / sumur sawah", desc: "Quick Boxer Hal. 25 No. 8", status: "Buku Quick G1000" },
+      { no: 10, name: "Mesin diesel susah dihidupkan saat diengkol", desc: "Buku Mesin Hal. 41 No. 1", status: "Buku Mesin Diesel" },
+      { no: 11, name: "Saluran solar ada gelembung udara (masuk angin)", desc: "Buku Mesin Hal. 41 No. 2", status: "Buku Mesin Diesel" },
+      { no: 12, name: "Solar kotor atau bercampur air", desc: "Buku Mesin Hal. 41 No. 2", status: "Buku Mesin Diesel" },
+      { no: 13, name: "Engkol ringan tanpa tahanan kompresi", desc: "Buku Mesin Hal. 41 No. 3", status: "Buku Mesin Diesel" },
+      { no: 14, name: "Tenaga mesin loyo / drop saat menarik beban", desc: "Buku Mesin Hal. 43 No. 2", status: "Buku Mesin Diesel" },
+      { no: 15, name: "Saringan udara tersumbat debu jerami", desc: "Buku Mesin Hal. 43 No. 3", status: "Buku Mesin Diesel" },
+      { no: 16, name: "Putaran mesin pincang dan letupan", desc: "Buku Mesin Hal. 44 No. 3", status: "Buku Mesin Diesel" },
+      { no: 17, name: "Knalpot basah rembesan oli mesin", desc: "Buku Mesin Hal. 45 No. 2", status: "Buku Mesin Diesel" },
+      { no: 18, name: "Indikator oli drop / oli di bawah minimum", desc: "Buku Mesin Hal. 46 No. 3", status: "Buku Mesin Diesel" },
+      { no: 19, name: "RPM mesin hunting naik-turun sendiri", desc: "Buku Mesin Hal. 46 No. 5", status: "Buku Mesin Diesel" },
+      { no: 20, name: "Air radiator mendidih menyembur", desc: "Buku Mesin Hal. 29–34", status: "Buku Mesin Diesel" },
+      { no: 21, name: "Suhu udara dingin di pagi hari", desc: "Buku Mesin Hal. 41 No. 1", status: "Buku Mesin Diesel" },
+      { no: 22, name: "Pipa pernapasan keluar asap putih pekat", desc: "Buku Mesin Hal. 34 No. 2", status: "Buku Mesin Diesel" }
+    ],
+    causes: [
+      { no: 1, name: "Mata luku menancap terlalu dalam di sawah", desc: "Quick Boxer Hal. 24: Kedalaman tanah sawah bervariasi", status: "Manual Kasus" },
+      { no: 2, name: "Setelan ulir pengatur luku terlalu rendah", desc: "Quick Boxer Hal. 24: Luku masuk tanah berlebihan", status: "Manual Kasus" },
+      { no: 3, name: "Hitch Pin di lubang samping / roda slip sebelah", desc: "Quick Boxer Hal. 24: Tarikan implement asimetris", status: "Manual Kasus" },
+      { no: 4, name: "Sirip roda besi blocking tanah liat sawah", desc: "Quick Boxer Hal. 24: Tanah setengah basah menempel", status: "Manual Kasus" },
+      { no: 5, name: "Pematang curam / kemiringan ekstrem sawah", desc: "Quick Boxer Hal. 25: Keseimbangan traktor hilang", status: "Manual Kasus" },
+      { no: 6, name: "Clutch spring terbalik / dog gear aus", desc: "Quick Boxer Hal. 25: Mekanisme kemudi terganggu", status: "Manual Kasus" },
+      { no: 7, name: "Pulley utama & diesel tidak sejajar / belt kendor", desc: "Quick Boxer Hal. 25: Ketegangan sabuk tidak pas", status: "Manual Kasus" },
+      { no: 8, name: "Roda ambles sumur sawah dalam", desc: "Quick Boxer Hal. 25: Kehilangan traksi pijakan roda", status: "Manual Kasus" },
+      { no: 9, name: "Saluran solar masuk angin / nosel berkerak", desc: "Buku Mesin Bab 5 Hal. 41: Suplai solar gagal ledak", status: "Manual Kasus" },
+      { no: 10, name: "Katup klep bocor / ring piston aus", desc: "Buku Mesin Bab 5 Hal. 42: Kompresi silinder bocor", status: "Manual Kasus" },
+      { no: 11, name: "Filter udara tersumbat debu jerami sawah", desc: "Buku Mesin Bab 5 Hal. 43: Hambatan aliran oksigen", status: "Manual Kasus" },
+      { no: 12, name: "Tekanan oli drop / karter kehabisan pelumas", desc: "Buku Mesin Bab 5 Hal. 46: Pelumasan tidak naik", status: "Manual Kasus" }
+    ],
+    actions: [
+      { no: 1, name: "Angkat stang kurangi kedalaman luku & atur gas", desc: "Quick Boxer Hal. 24 No. 1: Normalkan beban diesel", status: "Manual Kasus" },
+      { no: 2, name: "Atur ulir luku atau lepas pen hitch pin darurat", desc: "Quick Boxer Hal. 24 No. 2: Bebaskan traktor macet", status: "Manual Kasus" },
+      { no: 3, name: "Pindahkan hitch pin ke lubang tengah", desc: "Quick Boxer Hal. 24 No. 3: Luruskan jalur traksi", status: "Manual Kasus" },
+      { no: 4, name: "Bersihkan tanah roda & aliri air ke lahan sawah", desc: "Quick Boxer Hal. 24 No. 4: Cegah blocking sirip roda", status: "Manual Kasus" },
+      { no: 5, name: "Matikan diesel segera saat traktor miring ekstrem", desc: "Quick Boxer Hal. 25 No. 5: Cegah air masuk inlet mesin", status: "Manual Kasus" },
+      { no: 6, name: "Benahi clutch spring & tukar steering gear kiri-kanan", desc: "Quick Boxer Hal. 25 No. 6: Pulihkan kopling kemudi", status: "Manual Kasus" },
+      { no: 7, name: "Luruskan puli & setel defleksi V-Belt 1.5 cm beban 2 kg", desc: "Quick Boxer Hal. 25 No. 7: Tension rod adjustment", status: "Manual Kasus" },
+      { no: 8, name: "Gulung tali di sepatu roda diikat ke tonggak pohon", desc: "Quick Boxer Hal. 25 No. 8: Evakuasi roda ambles", status: "Manual Kasus" },
+      { no: 9, name: "Bleeding buang angin solar & bersihkan nosel injektor", desc: "Buku Mesin Hal. 41: Normalkan pasokan solar", status: "Manual Kasus" },
+      { no: 10, name: "Skir katup klep & kencangkan baut head menyilang", desc: "Buku Mesin Hal. 42: Rapatkan kompresi silinder", status: "Manual Kasus" },
+      { no: 11, name: "Semprot filter udara & cuci saringan solar", desc: "Buku Mesin Hal. 43: Pulihkan tenaga mesin diesel", status: "Manual Kasus" },
+      { no: 12, name: "Matikan mesin & isi oli SAE 40 batas garis atas 2.4L", desc: "Buku Mesin Hal. 46: Amankan metal jalan poros engkol", status: "Manual Kasus" }
+    ],
+    rules: [
+      { no: 1, name: "R-001 (Beban Luku Dalam)", desc: "JIKA G01 DAN G02 MAKA P01 (Quick Boxer Hal. 24)", status: "Aktif (90%)" },
+      { no: 2, name: "R-002 (Traktor Macet)", desc: "JIKA G03 MAKA P02 (Quick Boxer Hal. 24)", status: "Aktif (88%)" },
+      { no: 3, name: "R-003 (Stang Melenceng)", desc: "JIKA G04 MAKA P03 (Quick Boxer Hal. 24)", status: "Aktif (85%)" },
+      { no: 4, name: "R-004 (Roda Slip Blocking)", desc: "JIKA G05 MAKA P04 (Quick Boxer Hal. 24)", status: "Aktif (90%)" },
+      { no: 5, name: "R-005 (Risiko Terguling)", desc: "JIKA G06 MAKA P05 (Quick Boxer Hal. 25)", status: "Aktif (95%)" },
+      { no: 6, name: "R-006 (Belok Sendiri)", desc: "JIKA G07 MAKA P06 (Quick Boxer Hal. 25)", status: "Aktif (88%)" },
+      { no: 7, name: "R-007 (V-Belt Cepat Putus)", desc: "JIKA G08 MAKA P07 (Quick Boxer Hal. 25)", status: "Aktif (92%)" },
+      { no: 8, name: "R-008 (Ambles Sumur Sawah)", desc: "JIKA G09 MAKA P08 (Quick Boxer Hal. 25)", status: "Aktif (95%)" },
+      { no: 9, name: "R-009 (Solar Masuk Angin)", desc: "JIKA G10 DAN G11 MAKA P09 (Mesin Bab 5 Hal. 41)", status: "Aktif (92%)" },
+      { no: 10, name: "R-010 (Solar Campur Air)", desc: "JIKA G10 DAN G12 MAKA P09 (Mesin Bab 5 Hal. 41)", status: "Aktif (88%)" },
+      { no: 11, name: "R-011 (Suhu Udara Dingin)", desc: "JIKA G10 DAN G21 MAKA P09 (Mesin Bab 5 Hal. 41)", status: "Aktif (85%)" },
+      { no: 12, name: "R-012 (Kompresi Bocor/Blong)", desc: "JIKA G10 DAN G13 MAKA P10 (Mesin Bab 5 Hal. 42)", status: "Aktif (90%)" },
+      { no: 13, name: "R-013 (Filter Udara Tersumbat)", desc: "JIKA G14 DAN G15 MAKA P11 (Mesin Bab 5 Hal. 43)", status: "Aktif (88%)" },
+      { no: 14, name: "R-014 (Suplai Solar Drop)", desc: "JIKA G14 DAN G11 MAKA P11 (Mesin Bab 5 Hal. 43)", status: "Aktif (85%)" },
+      { no: 15, name: "R-015 (Injektor Meletup)", desc: "JIKA G16 DAN G11 MAKA P12 (Mesin Bab 5 Hal. 44)", status: "Aktif (87%)" },
+      { no: 16, name: "R-016 (Knalpot Basah Oli)", desc: "JIKA G17 DAN G14 MAKA P13 (Mesin Bab 5 Hal. 45)", status: "Aktif (90%)" },
+      { no: 17, name: "R-017 (Tekanan Oli Tekor)", desc: "JIKA G18 MAKA P14 (Mesin Bab 5 Hal. 46)", status: "Aktif (94%)" },
+      { no: 18, name: "R-018 (RPM Hunting)", desc: "JIKA G19 MAKA P15 (Mesin Bab 5 Hal. 46)", status: "Aktif (85%)" },
+      { no: 19, name: "R-019 (Overheat Radiator)", desc: "JIKA G20 MAKA P16 (Mesin Hal. 29–34)", status: "Aktif (92%)" },
+      { no: 20, name: "R-020 (Metal Poros Terbakar)", desc: "JIKA G22 MAKA P16 (Mesin Hal. 34 No. 2)", status: "Aktif (96%)" }
+    ]
+  },
+
+  // Riwayat Konsultasi Kasus Sawah Otentik
+  consultationHistory: [
+    {
+      no: 1,
+      id: "KONS-20261018-001",
+      date: "18-10-2026",
+      user: "Bpk. H. Sutrisno (Petani Pemilik)",
+      problem: "Beban Bajak Terlalu Dalam (Quick Boxer Hal. 24)",
+      status: "Selesai",
+      statusClass: "badge-success",
+      confidence: "90%",
+      symptoms: ["G01", "G02"]
+    },
+    {
+      no: 2,
+      id: "KONS-20261017-002",
+      date: "17-10-2026",
+      user: "Budi Santoso",
+      problem: "Solar Masuk Angin / Susah Hidup (Mesin Hal. 41)",
+      status: "Selesai",
+      statusClass: "badge-success",
+      confidence: "92%",
+      symptoms: ["G10", "G11"]
+    },
+    {
+      no: 3,
+      id: "KONS-20261017-003",
+      date: "17-10-2026",
+      user: "Ahmad Fauzi",
+      problem: "Roda Slip Blocking Lumpur Sawah (Quick Boxer Hal. 24)",
+      status: "Selesai",
+      statusClass: "badge-success",
+      confidence: "90%",
+      symptoms: ["G05"]
+    },
+    {
+      no: 4,
+      id: "KONS-20261016-004",
+      date: "16-10-2026",
+      user: "Siti Aminah",
+      problem: "V-Belt Cepat Aus / Puli Tidak Sejajar (Quick Boxer Hal. 25)",
+      status: "Selesai",
+      statusClass: "badge-success",
+      confidence: "92%",
+      symptoms: ["G08"]
+    },
+    {
+      no: 5,
+      id: "KONS-20261015-005",
+      date: "15-10-2026",
+      user: "Rudi Hartono",
+      problem: "Traktor Belok Sendiri Tanpa Kopling (Quick Boxer Hal. 25)",
+      status: "Selesai",
+      statusClass: "badge-success",
+      confidence: "88%",
+      symptoms: ["G07"]
+    }
+  ],
+
+  // Statistik Admin
+  adminStats: {
+    totalConsultations: 52,
+    registeredSymptoms: 22,
+    expertRules: 20
+  },
+
+  // Data Laporan Admin
+  reportData: {
+    dateRange: "01/10/2026 - 31/10/2026",
+    monthlyConsultations: [
+      { month: "Mei", count: 22, height: "45%" },
+      { month: "Jun", count: 28, height: "55%" },
+      { month: "Jul", count: 35, height: "70%" },
+      { month: "Agu", count: 42, height: "82%" },
+      { month: "Sep", count: 48, height: "92%" },
+      { month: "Okt", count: 52, height: "100%" }
+    ],
+    frequentIssues: [
+      { name: "Beban Luku Terlalu Dalam di Sawah (G1000 Boxer)", percent: 26 },
+      { name: "Mesin Susah Hidup / Solar Masuk Angin", percent: 22 },
+      { name: "Roda Slip Blocking Lumpur Sawah", percent: 18 },
+      { name: "V-Belt Cepat Rusak / Kendor", percent: 14 },
+      { name: "Traktor Belok Sendiri Tanpa Kopling", percent: 11 },
+      { name: "Tekanan Oli Tekor / Bahaya Metal", percent: 9 }
+    ]
+  },
+
+  // Pengguna Simulasi (2 Role: Petani & Admin)
+  users: [
+    { id: "U01", name: "Budi Santoso", email: "budi.santoso@desa.local", password: "petani", role: "Petani Penggarap", roleId: "farmer", status: "Aktif", joined: "20 Agu 2026", avatar: "BS" },
+    { id: "U02", name: "Admin TraktorCare", email: "admin@traktorcare.internal", password: "admin", role: "Administrator", roleId: "admin", status: "Aktif", joined: "01 Agu 2026", avatar: "AD" },
+    { id: "U03", name: "Bpk. H. Sutrisno", email: "sutrisno.petani@desa.local", password: "petani", role: "Petani Pemilik Traktor", roleId: "farmer", status: "Aktif", joined: "12 Agu 2026", avatar: "HS" },
+    { id: "U04", name: "Siti Aminah", email: "siti.aminah@desa.local", password: "petani", role: "Petani Penggarap", roleId: "farmer", status: "Aktif", joined: "05 Okt 2026", avatar: "SA" }
+  ],
+
+  // Log Audit Simulasi (Dikelola oleh Administrator berdasarkan manual pakar)
+  auditLogs: [
+    { id: "LOG-105", timestamp: "18 Okt 2026, 16:20", actor: "Admin TraktorCare", action: "Verifikasi Manual Buku Kasus", target: "Kasus Quick Boxer Hal. 24–25 & Mesin Bab 5 Hal. 41–46" },
+    { id: "LOG-104", timestamp: "17 Okt 2026, 14:10", actor: "Admin TraktorCare", action: "Pembaruan 20 Aturan Produksi", target: "Aturan R-001 s.d R-020 (Berdasarkan Manual Pakar)" },
+    { id: "LOG-103", timestamp: "16 Okt 2026, 11:22", actor: "Admin TraktorCare", action: "Sinkronisasi Data Kasus Lapangan", target: "22 Gejala Master Berbasis Foto Manual" },
+    { id: "LOG-102", timestamp: "15 Okt 2026, 09:40", actor: "Admin TraktorCare", action: "Pembaruan Jadwal Pemeliharaan", target: "Panduan Harian, 100 Jam, 500 Jam, 1000 Jam" },
+    { id: "LOG-101", timestamp: "01 Okt 2026, 10:00", actor: "Admin TraktorCare", action: "Inisialisasi Sistem TraktorCare", target: "Traktor Quick G1000 Boxer Single Speed" }
+  ]
+};

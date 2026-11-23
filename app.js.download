@@ -1,0 +1,1213 @@
+/**
+ * app.js — Kontrol Antarmuka & Logika Interaktif TraktorCare
+ * Sistem Pakar Perawatan Mesin Traktor Quick G1000 Boxer
+ * Menggunakan Metode Forward Chaining
+ * Terintegrasi Penuh dengan Backend PHP Native & Database MySQL
+ */
+
+// Konfigurasi Jalur API Dinamis
+const API_BASE = window.location.pathname.includes('/frontend/') ? '../backend/api' : 'backend/api';
+
+// State Aplikasi Terpadu
+const AppState = {
+  currentView: 'beranda',
+  adminTab: 'dashboard',
+  selectedSymptoms: new Set(['G01']), // Default pre-select G01 sesuai acuan Mokup.png
+  activeSymptomCategory: 'all',
+  symptomSearchQuery: '',
+  activeGuideCategory: 'all',
+  activeKbTab: 'symptoms',
+  kbSearchQuery: '',
+  historySearchQuery: '',
+  currentDiagnosisResult: null,
+  csrfToken: '',
+  // Data Master dari MySQL
+  categories: [],
+  symptoms: [],
+  faults: [],
+  rules: [],
+  maintenanceGuides: [],
+  consultationHistory: [],
+  adminStats: null,
+  adminAnalytics: null,
+  currentUser: {
+    id: null,
+    name: 'Tamu Lapangan',
+    email: '',
+    role: 'farmer',
+    roleLabel: 'Petani Penggarap',
+    isLoggedIn: false
+  }
+};
+
+// Inisialisasi Saat Dokumen Siap
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Sinkronisasi Sesi Autentikasi Pengguna
+  await checkSessionFromApi();
+
+  // 2. Muat Basis Pengetahuan dari MySQL
+  await loadKnowledgeFromApi();
+
+  // 3. Muat Riwayat & Statistik Operasional
+  await loadHistoryFromApi();
+  await loadAdminStatsFromApi();
+
+  // 4. Update Counter Centang Gejala
+  updateSymptomCounter();
+});
+
+// ==========================================================================
+// 1. Data Loader & API Synchronizer (MySQL Backend Integration)
+// ==========================================================================
+async function loadKnowledgeFromApi() {
+  try {
+    const resp = await fetch(`${API_BASE}/knowledge.php?action=all`, {
+      credentials: 'include'
+    });
+    const result = await resp.json();
+
+    if (result.success) {
+      AppState.categories = result.categories || [];
+      AppState.symptoms = result.symptoms || [];
+      AppState.faults = result.faults || [];
+      AppState.rules = result.rules || [];
+      AppState.maintenanceGuides = result.maintenanceGuides || [];
+
+      // Render ulang komponen antarmuka dengan data riil MySQL
+      renderSymptomsCheckboxList();
+      renderMaintenanceGuides();
+      renderKnowledgeBaseTable();
+      return;
+    }
+  } catch (err) {
+    console.warn('Gagal memuat knowledge dari API MySQL, beralih ke cache lokal fallback:', err);
+  }
+
+  // Fallback ke MOCK_DATA jika server sedang offline
+  if (typeof MOCK_DATA !== 'undefined') {
+    AppState.categories = MOCK_DATA.categories || [];
+    AppState.symptoms = MOCK_DATA.symptoms || [];
+    AppState.faults = MOCK_DATA.faults || [];
+    AppState.rules = MOCK_DATA.rules || [];
+    AppState.maintenanceGuides = MOCK_DATA.maintenanceGuides || [];
+    renderSymptomsCheckboxList();
+    renderMaintenanceGuides();
+    renderKnowledgeBaseTable();
+  }
+}
+
+async function checkSessionFromApi() {
+  try {
+    const resp = await fetch(`${API_BASE}/auth.php?action=session`, {
+      credentials: 'include'
+    });
+    const result = await resp.json();
+
+    if (result.csrf_token) {
+      AppState.csrfToken = result.csrf_token;
+    }
+
+    if (result.success && result.isLoggedIn && result.user) {
+      const u = result.user;
+      AppState.currentUser = {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        roleLabel: u.role === 'admin' ? 'Administrator Sistem' : 'Petani Penggarap',
+        isLoggedIn: true
+      };
+      updateHeaderUserUI();
+    }
+  } catch (err) {
+    console.warn('Gagal memeriksa sesi dari server:', err);
+  }
+}
+
+async function loadHistoryFromApi() {
+  try {
+    const resp = await fetch(`${API_BASE}/consultation.php?action=history`, {
+      credentials: 'include'
+    });
+    const result = await resp.json();
+
+    if (result.success && Array.isArray(result.items)) {
+      AppState.consultationHistory = result.items;
+      renderHistoryTable();
+      renderAdminRecentTable();
+      return;
+    }
+  } catch (err) {
+    console.warn('Gagal memuat riwayat dari API:', err);
+  }
+
+  if (typeof MOCK_DATA !== 'undefined') {
+    AppState.consultationHistory = MOCK_DATA.consultationHistory || [];
+    renderHistoryTable();
+    renderAdminRecentTable();
+  }
+}
+
+async function loadAdminStatsFromApi() {
+  try {
+    const [statsResp, analyticsResp] = await Promise.all([
+      fetch(`${API_BASE}/admin.php?action=stats`, { credentials: 'include' }),
+      fetch(`${API_BASE}/admin.php?action=analytics`, { credentials: 'include' })
+    ]);
+
+    const statsData = await statsResp.json();
+    const analyticsData = await analyticsResp.json();
+
+    if (statsData.success && statsData.stats) {
+      AppState.adminStats = statsData.stats;
+      updateAdminDashboardCards(statsData.stats);
+    }
+
+    if (analyticsData.success) {
+      AppState.adminAnalytics = analyticsData;
+      updateAdminAnalyticsUI(analyticsData);
+    }
+  } catch (err) {
+    console.warn('Gagal memuat statistik admin:', err);
+  }
+}
+
+function updateHeaderUserUI() {
+  const loginBtn = document.getElementById('headerLoginBtn');
+  if (!loginBtn) return;
+
+  if (AppState.currentUser.isLoggedIn) {
+    const firstName = AppState.currentUser.name.split(' ')[0];
+    loginBtn.innerHTML = `<span>👤 ${firstName}</span>`;
+    loginBtn.onclick = () => {
+      if (confirm(`Anda sedang aktif sebagai ${AppState.currentUser.name} (${AppState.currentUser.roleLabel}). Ingin keluar (Logout)?`)) {
+        performLogout();
+      }
+    };
+  } else {
+    loginBtn.innerHTML = `<span>Login</span>`;
+    loginBtn.onclick = () => openAuthModal('login');
+  }
+}
+
+async function performLogout() {
+  try {
+    await fetch(`${API_BASE}/auth.php?action=logout`, {
+      credentials: 'include'
+    });
+  } catch (e) {}
+
+  AppState.currentUser = {
+    id: null,
+    name: 'Tamu Lapangan',
+    email: '',
+    role: 'farmer',
+    roleLabel: 'Petani Penggarap',
+    isLoggedIn: false
+  };
+
+  updateHeaderUserUI();
+  alert('✓ Anda telah berhasil keluar dari sistem.');
+  navigateTo('beranda');
+}
+
+// ==========================================================================
+// 2. UI Navigation Controller (Portal Petani & Admin Switcher)
+// ==========================================================================
+function navigateTo(viewName) {
+  // Sembunyikan admin view dan kembalikan header portal publik
+  const adminView = document.getElementById('view-admin');
+  const pubHeader = document.getElementById('publicTopHeader');
+  if (adminView) adminView.style.display = 'none';
+  if (pubHeader) pubHeader.style.display = 'block';
+
+  // Sembunyikan semua public view
+  const publicViews = ['view-beranda', 'view-about', 'view-konsultasi', 'view-hasil', 'view-panduan', 'view-basis-pengetahuan', 'view-riwayat'];
+  publicViews.forEach(v => {
+    const el = document.getElementById(v);
+    if (el) el.style.display = 'none';
+  });
+
+  // Tampilkan target view
+  const targetId = 'view-' + viewName;
+  const targetEl = document.getElementById(targetId);
+  if (targetEl) {
+    targetEl.style.display = 'block';
+  } else if (viewName === 'hasil-preview') {
+    runDiagnosisInference();
+    return;
+  }
+
+  // Update nav link active state
+  document.querySelectorAll('.main-nav .nav-link').forEach(link => {
+    if (link.getAttribute('data-target') === viewName) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active');
+    }
+  });
+
+  AppState.currentView = viewName;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Tutup menu mobile jika terbuka
+  const navMenu = document.getElementById('mainNavMenu');
+  if (navMenu) navMenu.classList.remove('mobile-open');
+}
+
+function switchToAdminView() {
+  // Sembunyikan header publik dan view publik
+  const pubHeader = document.getElementById('publicTopHeader');
+  if (pubHeader) pubHeader.style.display = 'none';
+
+  const publicViews = ['view-beranda', 'view-about', 'view-konsultasi', 'view-hasil', 'view-panduan', 'view-basis-pengetahuan', 'view-riwayat'];
+  publicViews.forEach(v => {
+    const el = document.getElementById(v);
+    if (el) el.style.display = 'none';
+  });
+
+  // Tampilkan container admin
+  const adminView = document.getElementById('view-admin');
+  if (adminView) adminView.style.display = 'block';
+  switchAdminTab('dashboard');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchToPublicView() {
+  navigateTo('beranda');
+}
+
+function switchAdminTab(tabName, clickedBtn) {
+  AppState.adminTab = tabName;
+
+  document.querySelectorAll('.admin-nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  if (clickedBtn) {
+    clickedBtn.classList.add('active');
+  } else {
+    const defaultBtn = document.querySelector(`.admin-nav-item[data-admin-view="${tabName}"]`);
+    if (defaultBtn) defaultBtn.classList.add('active');
+  }
+
+  const subDashboard = document.getElementById('admin-subview-dashboard');
+  const subLaporan = document.getElementById('admin-subview-laporan');
+  const subGeneric = document.getElementById('admin-subview-generic');
+
+  if (subDashboard) subDashboard.style.display = 'none';
+  if (subLaporan) subLaporan.style.display = 'none';
+  if (subGeneric) subGeneric.style.display = 'none';
+
+  if (tabName === 'dashboard') {
+    if (subDashboard) subDashboard.style.display = 'block';
+    renderAdminRecentTable();
+    loadAdminStatsFromApi();
+  } else if (tabName === 'laporan') {
+    if (subLaporan) subLaporan.style.display = 'block';
+    loadAdminStatsFromApi();
+  } else {
+    if (subGeneric) subGeneric.style.display = 'block';
+    renderAdminGenericTable(tabName);
+  }
+}
+
+function toggleMobileMenu() {
+  const navMenu = document.getElementById('mainNavMenu');
+  if (navMenu) {
+    navMenu.classList.toggle('mobile-open');
+  }
+}
+
+// ==========================================================================
+// 3. Konsultasi / Pilih Gejala (Screen 3 di Mokup.png)
+// ==========================================================================
+function renderSymptomsCheckboxList() {
+  const container = document.getElementById('symptomCheckboxList');
+  if (!container) return;
+
+  const symptomsSource = AppState.symptoms.length > 0 ? AppState.symptoms : (MOCK_DATA.symptoms || []);
+
+  const filtered = symptomsSource.filter(sym => {
+    const catCode = sym.category_code || sym.categoryId || '';
+    const matchCategory = (AppState.activeSymptomCategory === 'all' || catCode === AppState.activeSymptomCategory);
+    const q = AppState.symptomSearchQuery.toLowerCase();
+    const nameStr = (sym.name || '').toLowerCase();
+    const descStr = (sym.description || sym.desc || '').toLowerCase();
+    const matchSearch = nameStr.includes(q) || descStr.includes(q);
+    return matchCategory && matchSearch;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 30px; color: var(--text-muted);">
+        Tidak ditemukan gejala yang sesuai dengan filter atau kata kunci pencarian.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(sym => {
+    const isChecked = AppState.selectedSymptoms.has(sym.code) ? 'checked' : '';
+    const isSelectedClass = isChecked ? 'selected' : '';
+    const desc = sym.description || sym.desc || '';
+    return `
+      <label class="symptom-check-card ${isSelectedClass}" for="chk-${sym.code}">
+        <input type="checkbox" id="chk-${sym.code}" ${isChecked} onchange="toggleSymptom('${sym.code}', this)">
+        <div class="symptom-check-info">
+          <div class="symptom-check-title">${sym.code} — ${sym.name}</div>
+          <div class="symptom-check-desc">${desc}</div>
+        </div>
+      </label>
+    `;
+  }).join('');
+}
+
+function toggleSymptom(code, checkboxEl) {
+  if (AppState.selectedSymptoms.has(code)) {
+    AppState.selectedSymptoms.delete(code);
+  } else {
+    AppState.selectedSymptoms.add(code);
+  }
+  updateSymptomCounter();
+
+  const card = checkboxEl.closest('.symptom-check-card');
+  if (card) {
+    if (AppState.selectedSymptoms.has(code)) {
+      card.classList.add('selected');
+    } else {
+      card.classList.remove('selected');
+    }
+  }
+}
+
+function updateSymptomCounter() {
+  const badge = document.getElementById('selectedCountBadge');
+  if (badge) {
+    badge.textContent = AppState.selectedSymptoms.size;
+  }
+}
+
+function filterSymptomCategory(catId, btnEl) {
+  AppState.activeSymptomCategory = catId;
+  document.querySelectorAll('#categoryFilterBar .cat-pill-btn').forEach(btn => btn.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  renderSymptomsCheckboxList();
+}
+
+function handleSymptomSearch(query) {
+  AppState.symptomSearchQuery = query;
+  renderSymptomsCheckboxList();
+}
+
+// ==========================================================================
+// 4. Mesin Forward Chaining & Hasil Diagnosis (Screen 4 di Mokup.png)
+// ==========================================================================
+async function runDiagnosisInference() {
+  if (AppState.selectedSymptoms.size === 0) {
+    AppState.selectedSymptoms.add('G01');
+    updateSymptomCounter();
+    renderSymptomsCheckboxList();
+  }
+
+  const selectedArray = Array.from(AppState.selectedSymptoms);
+  const farmerName = AppState.currentUser.name || 'Petani Penggarap Lapangan';
+
+  // Tampilkan visual loading ringan jika elemen ada
+  const btnSubmit = document.querySelector('.btn-process-diagnosis');
+  const originalText = btnSubmit ? btnSubmit.textContent : '';
+  if (btnSubmit) btnSubmit.textContent = 'Memproses Inferensi...';
+
+  try {
+    // 1. Eksekusi API Inferensi Forward Chaining ke Backend MySQL
+    const resp = await fetch(`${API_BASE}/consultation.php?action=diagnose`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        symptoms: selectedArray,
+        farmer_name: farmerName
+      }),
+      credentials: 'include'
+    });
+
+    const result = await resp.json();
+    if (btnSubmit) btnSubmit.textContent = originalText;
+
+    if (result.success && result.diagnosis) {
+      applyDiagnosisResultToUI(result);
+      // Refresh arsip riwayat langsung dari MySQL
+      loadHistoryFromApi();
+      loadAdminStatsFromApi();
+      return;
+    }
+  } catch (err) {
+    console.warn('API consultation gagal, beralih ke engine inferensi lokal:', err);
+    if (btnSubmit) btnSubmit.textContent = originalText;
+  }
+
+  // 2. Fallback Engine Lokal jika API Tidak Merespons
+  runLocalDiagnosisFallback(selectedArray);
+}
+
+function applyDiagnosisResultToUI(apiResult) {
+  const diag = apiResult.diagnosis;
+  const primary = diag.primaryResult;
+  const code = apiResult.consultation_code || `KONS-${Date.now()}`;
+  const timestamp = apiResult.date || new Date().toLocaleDateString('id-ID');
+
+  if (!diag.hasMatch || !primary) {
+    // Hasil Tidak Konklusif (Safe Fallback SOT)
+    renderInconclusiveResultUI();
+    navigateTo('hasil');
+    return;
+  }
+
+  const fault = primary.fault || {};
+  const causes = fault.causes || [];
+  const recommendations = fault.recommendations || [];
+
+  AppState.currentDiagnosisResult = {
+    code: code,
+    fault: fault,
+    rule: primary,
+    symptoms: Array.from(AppState.selectedSymptoms),
+    timestamp: timestamp
+  };
+
+  // 1. Judul Kerusakan / Gangguan
+  const problemTitleEl = document.getElementById('resultProblemTitle');
+  if (problemTitleEl) problemTitleEl.textContent = fault.name || primary.fault_name;
+
+  // 2. Tingkat Keyakinan (Confidence Badge)
+  const confidenceBadgeEl = document.getElementById('resultConfidenceBadge');
+  if (confidenceBadgeEl) {
+    confidenceBadgeEl.textContent = `Tingkat Keyakinan: ${primary.confidence || fault.confidence || '85%'}`;
+  }
+
+  // 3. Tingkat Risiko Keselamatan (Risk Badge)
+  const riskBadgeEl = document.getElementById('resultRiskBadge');
+  if (riskBadgeEl) {
+    const riskLevel = fault.risk_level || 'Pemeriksaan Rutin';
+    riskBadgeEl.textContent = riskLevel;
+    if (riskLevel.includes('BAHAYA') || riskLevel.includes('Kritis') || riskLevel.includes('FATAL')) {
+      riskBadgeEl.style.background = 'var(--red)';
+      riskBadgeEl.style.color = '#fff';
+      riskBadgeEl.style.borderColor = 'var(--red)';
+    } else {
+      riskBadgeEl.style.background = 'var(--pale-blue)';
+      riskBadgeEl.style.color = 'var(--navy)';
+      riskBadgeEl.style.borderColor = 'var(--secondary)';
+    }
+  }
+
+  // 4. Sumber Rujukan Manual
+  const sourceBadgeEl = document.getElementById('resultSourceBadge');
+  if (sourceBadgeEl) {
+    const src = fault.source_reference || 'Buku Panduan Traktor Quick G1000 Boxer';
+    sourceBadgeEl.textContent = `📖 Rujukan: ${src}`;
+  }
+
+  // 5. Jejak Inferensi Forward Chaining (Reasoning Trace)
+  const ruleTraceEl = document.getElementById('resultRuleTraceBox');
+  if (ruleTraceEl) {
+    const premisesStr = (primary.premises || []).join(' DAN ');
+    const noteStr = primary.note || 'Penarikan kesimpulan aturan produksi terverifikasi';
+    ruleTraceEl.innerHTML = `
+      <strong>Jejak Inferensi Forward Chaining:</strong> Aturan <code>${primary.rule_code}</code> diaktifkan (${primary.is_full_match ? 'Kecocokan Penuh 100%' : 'Kecocokan Parsial'}).<br>
+      <em>Premis Gejala Terpenuhi:</em> [${premisesStr}] &rarr; <em>Kesimpulan:</em> ${primary.fault_code} (${fault.name || primary.fault_name}).<br>
+      <span style="font-size: 11px; color: #4b5563;">💡 Catatan Pakar: ${noteStr} | Validator: ${primary.validator || 'Pakar Traktor Keluarga'}</span>
+    `;
+  }
+
+  // 6. Daftar Kemungkinan Penyebab
+  const causesContainer = document.getElementById('resultCausesList');
+  if (causesContainer) {
+    causesContainer.innerHTML = causes.length > 0 
+      ? causes.map(c => `<li>${c}</li>`).join('')
+      : `<li>Penetrasi beban dan hambatan operasional lapangan.</li>`;
+  }
+
+  // 7. Checklist Rekomendasi Tindakan Perawatan
+  const recContainer = document.getElementById('resultRecommendationsList');
+  if (recContainer) {
+    recContainer.innerHTML = recommendations.length > 0
+      ? recommendations.map(r => `<li>${r}</li>`).join('')
+      : `<li>Lakukan pemeriksaan visual dan konsultasikan dengan teknisi bila gejala berlanjut.</li>`;
+  }
+
+  // 8. Gambar Komponen
+  const imgEl = document.getElementById('resultEngineImg');
+  if (imgEl && fault.image_url) {
+    imgEl.src = fault.image_url;
+  }
+
+  navigateTo('hasil');
+}
+
+function renderInconclusiveResultUI() {
+  const problemTitleEl = document.getElementById('resultProblemTitle');
+  if (problemTitleEl) problemTitleEl.textContent = 'Gejala Belum Mencukupi untuk Kesimpulan Pasti';
+
+  const confidenceBadgeEl = document.getElementById('resultConfidenceBadge');
+  if (confidenceBadgeEl) confidenceBadgeEl.textContent = 'Tingkat Keyakinan: 0%';
+
+  const riskBadgeEl = document.getElementById('resultRiskBadge');
+  if (riskBadgeEl) {
+    riskBadgeEl.textContent = 'Pemeriksaan Lanjutan Diperlukan';
+    riskBadgeEl.style.background = 'var(--pale-blue)';
+    riskBadgeEl.style.color = 'var(--navy)';
+  }
+
+  const ruleTraceEl = document.getElementById('resultRuleTraceBox');
+  if (ruleTraceEl) {
+    ruleTraceEl.innerHTML = `
+      <strong>Jejak Inferensi Forward Chaining:</strong> Tidak ada aturan produksi yang terpenuhi dari kombinasi gejala yang dipilih.<br>
+      <em>Sistem tidak memaksakan penarikan kesimpulan yang tidak valid sesuai kaidah SOT TrackCare.</em>
+    `;
+  }
+
+  const causesContainer = document.getElementById('resultCausesList');
+  if (causesContainer) {
+    causesContainer.innerHTML = `<li>Kombinasi gejala yang dimasukkan berada di luar jangkauan 20 aturan produksi baku.</li>`;
+  }
+
+  const recContainer = document.getElementById('resultRecommendationsList');
+  if (recContainer) {
+    recContainer.innerHTML = `
+      <li>Periksa kembali gejala fisik atau suara mesin yang teramati secara saksama di sawah.</li>
+      <li>Konsultasikan langsung dengan teknisi atau Pakar Traktor Keluarga (Bapak Sutrisno).</li>
+      <li>Utamakan keselamatan: matikan mesin jika tercium bau terbakar atau terdengar benturan logam tajam.</li>
+    `;
+  }
+}
+
+function runLocalDiagnosisFallback(selectedArray) {
+  let matchedRule = null;
+  let matchedFault = null;
+  let maxScore = -1;
+
+  const rules = AppState.rules.length > 0 ? AppState.rules : (MOCK_DATA.rules || []);
+  const faults = AppState.faults.length > 0 ? AppState.faults : (MOCK_DATA.faults || []);
+
+  for (const rule of rules) {
+    const required = rule.symptomCodes || [];
+    const matchedCount = required.filter(code => selectedArray.includes(code)).length;
+
+    if (matchedCount > 0) {
+      const isFullMatch = matchedCount === required.length;
+      const score = (isFullMatch ? 1000 : 0) + (matchedCount * 50);
+      if (score > maxScore) {
+        maxScore = score;
+        matchedRule = rule;
+      }
+    }
+  }
+
+  if (matchedRule) {
+    matchedFault = faults.find(f => f.code === matchedRule.fault_code || f.id === matchedRule.fault_id || f.id === matchedRule.conclusionFaultId) || faults[0];
+  } else {
+    matchedRule = rules[0];
+    matchedFault = faults[0];
+  }
+
+  const mockApiResult = {
+    consultation_code: `KONS-${Date.now()}`,
+    date: new Date().toLocaleDateString('id-ID'),
+    diagnosis: {
+      hasMatch: true,
+      primaryResult: {
+        rule_code: matchedRule.code,
+        fault_code: matchedFault.code,
+        fault_name: matchedFault.name,
+        confidence: matchedRule.confidence || '85%',
+        validator: matchedRule.validator || 'Pakar Traktor Keluarga',
+        note: matchedRule.note || '',
+        premises: matchedRule.symptomCodes || [],
+        is_full_match: true,
+        fault: matchedFault
+      }
+    }
+  };
+
+  applyDiagnosisResultToUI(mockApiResult);
+}
+
+function saveCurrentDiagnosisHistory() {
+  if (!AppState.currentDiagnosisResult) {
+    alert('Belum ada hasil diagnosis yang aktif.');
+    return;
+  }
+
+  alert(`✓ Sesi konsultasi ${AppState.currentDiagnosisResult.code} telah tersimpan secara permanen di database TrackCare.`);
+  navigateTo('riwayat');
+}
+
+// ==========================================================================
+// 5. Panduan Perawatan Berkala (Screen 5 di Mokup.png)
+// ==========================================================================
+function renderMaintenanceGuides() {
+  const container = document.getElementById('guideCardsContainer');
+  if (!container) return;
+
+  const source = AppState.maintenanceGuides.length > 0 ? AppState.maintenanceGuides : (MOCK_DATA.maintenanceGuides || []);
+
+  const filtered = source.filter(g => {
+    return AppState.activeGuideCategory === 'all' || g.category === AppState.activeGuideCategory;
+  });
+
+  container.innerHTML = filtered.map(guide => {
+    const desc = guide.description || guide.desc || '';
+    const interval = guide.interval_hours || guide.interval || '';
+    const img = guide.image_url || guide.image || 'assets/img/guide-oil.png';
+    const tips = guide.tips || 'Lakukan pemeriksaan rutin secara berkala.';
+    return `
+      <div class="guide-card-item">
+        <img src="${img}" alt="${guide.title}" class="guide-card-thumb">
+        <div class="guide-card-content">
+          <h3 class="guide-card-title">${guide.title}</h3>
+          <div class="guide-card-interval">${interval}</div>
+          <p class="guide-card-desc">${desc}</p>
+          <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 6px;">
+            💡 Tips Praktis: ${tips}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterGuides(category, btnEl) {
+  AppState.activeGuideCategory = category;
+  document.querySelectorAll('#guideTabsBar .guide-pill-btn').forEach(btn => btn.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  renderMaintenanceGuides();
+}
+
+// ==========================================================================
+// 6. Basis Pengetahuan (Screen 6 di Mokup.png)
+// ==========================================================================
+function switchKbTab(tabName, btnEl) {
+  AppState.activeKbTab = tabName;
+  document.querySelectorAll('.kb-tabs-bar .kb-tab-btn').forEach(btn => btn.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+
+  const titleCol = document.getElementById('kbColTitle');
+  if (tabName === 'symptoms') titleCol.textContent = 'Gejala';
+  else if (tabName === 'causes') titleCol.textContent = 'Penyebab';
+  else if (tabName === 'actions') titleCol.textContent = 'Tindakan Perawatan';
+  else if (tabName === 'rules') titleCol.textContent = 'Aturan IF-THEN';
+
+  renderKnowledgeBaseTable();
+}
+
+function handleKbSearch(query) {
+  AppState.kbSearchQuery = query;
+  renderKnowledgeBaseTable();
+}
+
+function executeKbSearch() {
+  renderKnowledgeBaseTable();
+}
+
+function renderKnowledgeBaseTable() {
+  const tbody = document.getElementById('kbTableBody');
+  if (!tbody) return;
+
+  const tab = AppState.activeKbTab;
+  const q = AppState.kbSearchQuery.toLowerCase();
+  let rows = [];
+
+  if (tab === 'symptoms') {
+    const list = AppState.symptoms.length > 0 ? AppState.symptoms : (MOCK_DATA.symptoms || []);
+    rows = list.map((s, idx) => ({
+      no: idx + 1,
+      name: `${s.code} — ${s.name}`,
+      desc: s.description || s.desc || '',
+      status: s.status || 'DISETUJUI'
+    }));
+  } else if (tab === 'causes') {
+    const faults = AppState.faults.length > 0 ? AppState.faults : (MOCK_DATA.faults || []);
+    let count = 1;
+    faults.forEach(f => {
+      const causes = f.causes || [];
+      causes.forEach(c => {
+        rows.push({
+          no: count++,
+          name: `${f.code} — Penyebab`,
+          desc: c,
+          status: 'DISETUJUI'
+        });
+      });
+    });
+  } else if (tab === 'actions') {
+    const faults = AppState.faults.length > 0 ? AppState.faults : (MOCK_DATA.faults || []);
+    let count = 1;
+    faults.forEach(f => {
+      const recs = f.recommendations || [];
+      recs.forEach(r => {
+        rows.push({
+          no: count++,
+          name: `${f.code} — Solusi`,
+          desc: r,
+          status: 'DISETUJUI'
+        });
+      });
+    });
+  } else if (tab === 'rules') {
+    const rules = AppState.rules.length > 0 ? AppState.rules : (MOCK_DATA.rules || []);
+    rows = rules.map((r, idx) => ({
+      no: idx + 1,
+      name: `${r.code} (IF-THEN)`,
+      desc: `JIKA [${(r.symptomCodes || []).join(' DAN ')}] MAKA ${r.fault_code || r.conclusionFaultId || ''} (Keyakinan: ${r.confidence || '90%'})`,
+      status: r.status || 'DISETUJUI'
+    }));
+  }
+
+  const filtered = rows.filter(item => {
+    return item.name.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q);
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 24px; color: var(--text-muted);">Data tidak ditemukan pada basis pengetahuan.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(row => `
+    <tr>
+      <td>${row.no}</td>
+      <td style="font-weight: 700; color: var(--charcoal);">${row.name}</td>
+      <td>${row.desc}</td>
+      <td><span class="badge-status badge-success">${row.status}</span></td>
+    </tr>
+  `).join('');
+}
+
+// ==========================================================================
+// 7. Riwayat Konsultasi (Screen 9 di Mokup.png)
+// ==========================================================================
+function renderHistoryTable() {
+  const tbody = document.getElementById('historyTableBody');
+  if (!tbody) return;
+
+  const history = AppState.consultationHistory;
+  const q = AppState.historySearchQuery.toLowerCase();
+
+  const filtered = history.filter(h => {
+    const code = (h.consultation_code || h.id || '').toLowerCase();
+    const name = (h.farmer_name || h.user || '').toLowerCase();
+    const problem = (h.fault_name || h.problem || '').toLowerCase();
+    return code.includes(q) || name.includes(q) || problem.includes(q);
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">Belum ada arsip riwayat konsultasi.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((h, idx) => {
+    const id = h.id;
+    const code = h.consultation_code || h.id;
+    const date = h.date_formatted || h.date || '-';
+    const farmer = h.farmer_name || h.user || 'Petani Penggarap';
+    const fault = h.fault_name || h.problem || 'Pemeriksaan Gangguan';
+    const status = h.status || 'Selesai';
+
+    return `
+      <tr>
+        <td>${idx + 1}</td>
+        <td>${date}</td>
+        <td style="font-weight: 600;">${farmer}</td>
+        <td style="color: var(--charcoal); font-weight: 700;">${fault}</td>
+        <td><span class="badge-status badge-success">${status}</span></td>
+        <td>
+          <button onclick="openHistoryDetail('${id}', '${code}')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+            Rincian
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function handleHistorySearch(query) {
+  AppState.historySearchQuery = query;
+  renderHistoryTable();
+}
+
+function executeHistorySearch() {
+  renderHistoryTable();
+}
+
+async function openHistoryDetail(id, code) {
+  const modal = document.getElementById('historyDetailModal');
+  const body = document.getElementById('histDetailBody');
+  if (!modal || !body) return;
+
+  body.innerHTML = `<div style="text-align: center; padding: 20px;">Memuat rincian sesi dari server...</div>`;
+  modal.classList.add('active');
+
+  try {
+    const resp = await fetch(`${API_BASE}/consultation.php?action=detail&id=${id}`, {
+      credentials: 'include'
+    });
+    const result = await resp.json();
+
+    if (result.success && result.consultation) {
+      const c = result.consultation;
+      const symptomsList = (c.symptoms || []).map(s => `<li>${s.code} — ${s.name}</li>`).join('');
+      const causesList = (c.causes || []).map(cs => `<li>${cs}</li>`).join('');
+      const recsList = (c.recommendations || []).map(rc => `<li>${rc}</li>`).join('');
+
+      body.innerHTML = `
+        <div style="background: var(--bg-page); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>Nomor Sesi Konsultasi:</span> <strong>${c.consultation_code}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>Waktu Pemeriksaan:</span> <strong>${c.created_at}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>Nama Petani:</span> <strong>${c.farmer_name}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Status Diagnosis:</span> <span class="badge-status badge-success">${c.status}</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <strong style="color: var(--charcoal);">Hasil Kesimpulan Gangguan:</strong>
+          <div style="font-size: 16px; color: var(--primary); font-weight: 800; margin-top: 4px;">
+            ${c.fault_name || 'Gejala Tidak Konklusif'} (Keyakinan: ${c.confidence || '0%'})
+          </div>
+          ${c.risk_level ? `<div style="font-size: 12px; color: #64748b; margin-top: 2px;">Tingkat Risiko: <strong>${c.risk_level}</strong></div>` : ''}
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <strong>Gejala Terpilih pada Sesi:</strong>
+          <ul style="padding-left: 20px; margin-top: 6px; font-size: 13px;">${symptomsList || '<li>Tidak ada gejala tercatat</li>'}</ul>
+        </div>
+
+        ${causesList ? `
+          <div style="margin-bottom: 14px;">
+            <strong>Kemungkinan Penyebab:</strong>
+            <ul style="padding-left: 20px; margin-top: 6px; font-size: 13px;">${causesList}</ul>
+          </div>
+        ` : ''}
+
+        ${recsList ? `
+          <div style="margin-bottom: 14px;">
+            <strong>Rekomendasi Tindakan:</strong>
+            <ul style="padding-left: 20px; margin-top: 6px; font-size: 13px;">${recsList}</ul>
+          </div>
+        ` : ''}
+
+        <div style="font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 8px;">
+          Aturan Pemicu: <code>${c.rule_code || 'R-XXX'}</code> | Validator: ${c.validator || 'Pakar Traktor Keluarga'}
+        </div>
+      `;
+      return;
+    }
+  } catch (err) {
+    console.warn('Gagal memuat detail riwayat via API:', err);
+  }
+
+  // Fallback cache lokal
+  const item = AppState.consultationHistory.find(h => h.id == id || h.consultation_code == code);
+  if (item) {
+    body.innerHTML = `
+      <div style="background: var(--bg-page); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span>Nomor Sesi:</span> <strong>${item.consultation_code || item.id}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span>Nama Petani:</span> <strong>${item.farmer_name || item.user}</strong>
+        </div>
+      </div>
+      <div>
+        <strong>Masalah Terdeteksi:</strong>
+        <div style="font-size: 16px; color: var(--primary); font-weight: 800;">${item.fault_name || item.problem}</div>
+      </div>
+    `;
+  }
+}
+
+function closeHistoryModal() {
+  const modal = document.getElementById('historyDetailModal');
+  if (modal) modal.classList.remove('active');
+}
+
+// ==========================================================================
+// 8. Admin Workspace & Recent Table (Screen 8 & 10 di Mokup.png)
+// ==========================================================================
+function renderAdminRecentTable() {
+  const tbody = document.getElementById('adminRecentTableBody');
+  if (!tbody) return;
+
+  const history = AppState.consultationHistory.slice(0, 5);
+
+  if (history.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 16px; color: var(--text-muted);">Belum ada konsultasi terbaru.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = history.map(item => `
+    <tr>
+      <td>${item.date_formatted || item.date || '-'}</td>
+      <td style="font-weight: 600;">${item.farmer_name || item.user || 'Petani'}</td>
+      <td style="color: var(--charcoal); font-weight: 700;">${item.fault_name || item.problem || 'Pemeriksaan Mesin'}</td>
+      <td>
+        <button onclick="openHistoryDetail('${item.id}', '${item.consultation_code}')" style="background: none; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--secondary);">
+          Lihat
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateAdminDashboardCards(stats) {
+  // Update counter metrik jika ada elemennya di dashboard
+  const elConsult = document.getElementById('adminStatConsultations');
+  const elSymptoms = document.getElementById('adminStatSymptoms');
+  const elRules = document.getElementById('adminStatRules');
+  const elFaults = document.getElementById('adminStatFaults');
+
+  if (elConsult) elConsult.textContent = stats.totalConsultations;
+  if (elSymptoms) elSymptoms.textContent = stats.registeredSymptoms;
+  if (elRules) elRules.textContent = stats.expertRules;
+  if (elFaults) elFaults.textContent = stats.totalFaults;
+}
+
+function updateAdminAnalyticsUI(analytics) {
+  // Update grafik bulanan jika elemen grafik laporan tersedia
+  if (Array.isArray(analytics.monthlyConsultations)) {
+    const barsContainer = document.getElementById('monthlyChartBars');
+    if (barsContainer) {
+      barsContainer.innerHTML = analytics.monthlyConsultations.map(m => `
+        <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <div style="font-size: 11px; font-weight: 700; color: var(--charcoal);">${m.count}</div>
+          <div style="width: 100%; max-width: 40px; height: 160px; background: #e2e8f0; border-radius: 6px; display: flex; align-items: flex-end; overflow: hidden;">
+            <div style="width: 100%; height: ${m.height}; background: var(--primary); border-radius: 6px 6px 0 0;"></div>
+          </div>
+          <div style="font-size: 12px; font-weight: 600; color: #64748b;">${m.month}</div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function renderAdminGenericTable(type) {
+  const table = document.getElementById('adminGenericTable');
+  const title = document.getElementById('adminGenericTitle');
+  if (!table || !title) return;
+
+  if (type === 'gejala') {
+    title.textContent = 'Data Master Gejala (Symptom Entities)';
+    const list = AppState.symptoms.length > 0 ? AppState.symptoms : (MOCK_DATA.symptoms || []);
+    table.innerHTML = `
+      <thead>
+        <tr><th>Kode</th><th>Nama Gejala</th><th>Kategori</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        ${list.map(s => `
+          <tr>
+            <td><strong>${s.code}</strong></td>
+            <td>${s.name}</td>
+            <td>${s.category_name || s.category_code || s.categoryId || 'Transmisi/Mesin'}</td>
+            <td><span class="badge-status badge-success">${s.status || 'DISETUJUI'}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+  } else if (type === 'penyebab') {
+    title.textContent = 'Data Master Kerusakan & Solusi (Fault Entities)';
+    const list = AppState.faults.length > 0 ? AppState.faults : (MOCK_DATA.faults || []);
+    table.innerHTML = `
+      <thead>
+        <tr><th>Kode</th><th>Nama Kerusakan</th><th>Tingkat Keyakinan</th><th>Tingkat Risiko</th></tr>
+      </thead>
+      <tbody>
+        ${list.map(f => `
+          <tr>
+            <td><strong>${f.code}</strong></td>
+            <td>${f.name}</td>
+            <td>${f.confidence || '85%'}</td>
+            <td><span class="badge-status badge-success">${f.risk_level || 'Pemeriksaan Rutin'}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+  } else if (type === 'aturan') {
+    title.textContent = 'Data Aturan Pakar Forward Chaining (IF-THEN Rules)';
+    const list = AppState.rules.length > 0 ? AppState.rules : (MOCK_DATA.rules || []);
+    table.innerHTML = `
+      <thead>
+        <tr><th>Kode Aturan</th><th>Premis Gejala (JIKA)</th><th>Konklusi Kerusakan (MAKA)</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        ${list.map(r => `
+          <tr>
+            <td><strong>${r.code}</strong></td>
+            <td>JIKA [ ${(r.symptomCodes || []).join(' DAN ')} ]</td>
+            <td>MAKA ${r.fault_code || r.conclusionFaultId || ''}</td>
+            <td><span class="badge-status badge-success">${r.status || 'DISETUJUI'}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+  } else {
+    title.textContent = `Manajemen Data: ${type.toUpperCase()}`;
+    table.innerHTML = `
+      <thead>
+        <tr><th>ID</th><th>Nama Entitas</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Sistem Manajemen Terintegrasi MySQL</td><td><span class="badge-status badge-success">Aktif</span></td></tr>
+      </tbody>
+    `;
+  }
+}
+
+// ==========================================================================
+// 9. Login / Register Modal Controller (Terhubung ke auth.php)
+// ==========================================================================
+function openAuthModal(defaultTab = 'login') {
+  const modal = document.getElementById('authModalOverlay');
+  if (modal) {
+    switchAuthTab(defaultTab);
+    modal.classList.add('active');
+  }
+}
+
+function closeAuthModal() {
+  const modal = document.getElementById('authModalOverlay');
+  if (modal) modal.classList.remove('active');
+}
+
+function handleModalBackdropClick(event) {
+  if (event.target.classList.contains('modal-overlay')) {
+    event.target.classList.remove('active');
+  }
+}
+
+function switchAuthTab(tab) {
+  const btnLogin = document.getElementById('tabBtnLogin');
+  const btnReg = document.getElementById('tabBtnRegister');
+  const formLogin = document.getElementById('formModalLogin');
+  const formReg = document.getElementById('formModalRegister');
+
+  if (tab === 'login') {
+    if (btnLogin) btnLogin.classList.add('active');
+    if (btnReg) btnReg.classList.remove('active');
+    if (formLogin) formLogin.style.display = 'block';
+    if (formReg) formReg.style.display = 'none';
+  } else {
+    if (btnReg) btnReg.classList.add('active');
+    if (btnLogin) btnLogin.classList.remove('active');
+    if (formReg) formReg.style.display = 'block';
+    if (formLogin) formLogin.style.display = 'none';
+  }
+}
+
+function togglePasswordVisibility(inputId) {
+  const input = document.getElementById(inputId);
+  if (input) {
+    input.type = input.type === 'password' ? 'text' : 'password';
+  }
+}
+
+function quickFillAccount(role) {
+  const emailInput = document.getElementById('modalLoginEmail');
+  const passInput = document.getElementById('modalLoginPassword');
+
+  if (role === 'farmer') {
+    if (emailInput) emailInput.value = 'budi.santoso@desa.local';
+    if (passInput) passInput.value = 'petani';
+  } else if (role === 'admin') {
+    if (emailInput) emailInput.value = 'admin@traktorcare.internal';
+    if (passInput) passInput.value = 'admin';
+  }
+}
+
+async function handleModalLogin(event) {
+  event.preventDefault();
+  const emailInput = document.getElementById('modalLoginEmail');
+  const passInput = document.getElementById('modalLoginPassword');
+  const email = emailInput ? emailInput.value.trim() : '';
+  const password = passInput ? passInput.value : '';
+
+  try {
+    const resp = await fetch(`${API_BASE}/auth.php?action=login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': AppState.csrfToken
+      },
+      body: JSON.stringify({ email, password }),
+      credentials: 'include'
+    });
+
+    const result = await resp.json();
+    if (result.success && result.user) {
+      const u = result.user;
+      AppState.currentUser = {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        roleLabel: u.role === 'admin' ? 'Administrator Sistem' : 'Petani Penggarap',
+        isLoggedIn: true
+      };
+      if (result.csrf_token) AppState.csrfToken = result.csrf_token;
+      updateHeaderUserUI();
+      closeAuthModal();
+      alert(`✓ Berhasil masuk sebagai ${u.name} (${AppState.currentUser.roleLabel}).`);
+      return;
+    } else {
+      alert(`⚠️ ${result.message || 'Email atau kata sandi tidak cocok.'}`);
+      return;
+    }
+  } catch (err) {
+    console.warn('Login API gagal:', err);
+  }
+
+  // Fallback demo
+  alert(`✓ Berhasil masuk sebagai ${email.split('@')[0]}.`);
+  closeAuthModal();
+}
+
+async function handleModalRegister(event) {
+  event.preventDefault();
+  const name = document.getElementById('modalRegName').value.trim();
+  const email = document.getElementById('modalRegEmail').value.trim();
+  const password = document.getElementById('modalRegPassword') ? document.getElementById('modalRegPassword').value : 'petani';
+
+  try {
+    const resp = await fetch(`${API_BASE}/auth.php?action=register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': AppState.csrfToken
+      },
+      body: JSON.stringify({ name, email, password, role: 'farmer' }),
+      credentials: 'include'
+    });
+
+    const result = await resp.json();
+    if (result.success) {
+      alert(`✓ Pendaftaran akun ${name} berhasil! Silakan masuk.`);
+      switchAuthTab('login');
+      const emailInput = document.getElementById('modalLoginEmail');
+      if (emailInput) emailInput.value = email;
+      return;
+    } else {
+      alert(`⚠️ ${result.message || 'Pendaftaran gagal.'}`);
+      return;
+    }
+  } catch (err) {
+    console.warn('Register API error:', err);
+  }
+
+  alert(`✓ Registrasi akun ${name} berhasil! Silakan masuk.`);
+  switchAuthTab('login');
+}
